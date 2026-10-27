@@ -238,7 +238,7 @@ const fmtDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0'
 const todayStr = () => fmtDate(new Date());
 const todayKey = () => DAY_KEYS[new Date().getDay()];
 const genFamilyId = () => { const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let o='FAM-'; for(let i=0;i<8;i++)o+=c[Math.floor(Math.random()*c.length)]; return o; };
-async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-hewan-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-malika-dan-keandra-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 let toastTimer;
 function toast(msg,type=''){ const t=$('#toast'); t.textContent=msg; t.className='toast show '+type; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800); }
 function showScreen(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id)?.classList.add('active'); window.scrollTo(0,0); }
@@ -561,7 +561,7 @@ function renderParentMore(body){
     <button class="btn btn-secondary" data-action="change-family-name">✏️ Ganti Nama Keluarga</button>
     <button class="btn btn-warn" data-action="change-pin">🔒 Ganti PIN Orang Tua</button>
     <button class="btn btn-danger" data-action="reset-device">🚪 Reset HP Ini (keluar)</button>
-    <div class="card tint-mint" style="margin-top:16px"><div style="font-weight:900;font-size:14px;margin-bottom:4px">Tentang</div><div class="subtitle">Petualangan Hewan v1 • Data di Firebase & cache offline</div></div>`;
+    <div class="card tint-mint" style="margin-top:16px"><div style="font-weight:900;font-size:14px;margin-bottom:4px">Tentang</div><div class="subtitle">Petualangan Malika dan Keandra v1 • Data di Firebase & cache offline</div></div>`;
 }
 
 document.body.addEventListener('click', async (e) => {
