@@ -3,25 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FF9AA2">
+<meta name="theme-color" content="#EEF4F1">
 <title>Petualangan Malika dan Keandra 🐾</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--pink:#FF9AA2;--peach:#FFB7B2;--mint:#B5EAD7;--sky:#A2D2FF;--text:#4A3F55;--tl:#8B7E9A;--w:#fff;--ok:#4CAF50;--warn:#FFB74D;--err:#E57373;--line:#eadfe8}
+:root{--pri:#4E9381;--soft:#E6F2EE;--peach:#F0A88F;--mint:#BFE0D6;--sky:#9DC3E6;--text:#3E4A4F;--tl:#7C8A8F;--w:#fff;--ok:#5BA67A;--warn:#E8B866;--err:#D98080;--line:#DCE5E2}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-body{font-family:'Nunito',system-ui,sans-serif;background:linear-gradient(135deg,#FFF5E1,#FFE4EC);min-height:100vh;color:var(--text);overflow-x:hidden}
+body{font-family:'Nunito',system-ui,sans-serif;background:linear-gradient(160deg,#EEF4F1,#E7EFF4);min-height:100vh;color:var(--text);overflow-x:hidden}
 .screen{display:none;min-height:100vh;padding:16px 16px 110px}.screen.active{display:block}
 h2{font-size:22px;font-weight:800;margin:0 0 8px}h3{font-size:18px;font-weight:800;margin:0 0 8px}p{margin:4px 0}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border:none;border-radius:22px;font:800 17px inherit;font-family:inherit;color:var(--w);cursor:pointer;width:100%;margin:6px 0;box-shadow:0 4px 0 rgba(0,0,0,.12)}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.12)}
-.btn-primary{background:var(--pink)}.btn-secondary{background:var(--sky)}.btn-danger{background:var(--err)}.btn-warn{background:var(--warn);color:#6b4a12}
+.btn-primary{background:var(--pri)}.btn-secondary{background:var(--sky)}.btn-danger{background:var(--err)}.btn-warn{background:var(--warn);color:#6b4a12}
 .btn-sm{padding:8px 14px;font-size:14px;border-radius:14px;width:auto;margin:0}
 .btn-ghost{background:transparent;color:var(--text);box-shadow:none;border:2px solid var(--line)}
-.card{background:var(--w);border-radius:22px;padding:16px;margin:10px 0;box-shadow:0 4px 12px rgba(160,140,170,.12)}
-.t-pink{background:#FFF0F3;border-left:6px solid var(--pink)}.t-mint{background:#F0FFF8;border-left:6px solid var(--mint)}.t-yellow{background:#FFFCF0;border-left:6px solid #FFDAC1}
+.card{background:var(--w);border-radius:22px;padding:16px;margin:10px 0;box-shadow:0 3px 10px rgba(80,110,110,.10)}
+.t-pink{background:var(--soft);border-left:6px solid var(--pri)}.t-mint{background:#F0FFF8;border-left:6px solid var(--mint)}.t-yellow{background:#FFFCF0;border-left:6px solid #FFDAC1}
 input,select{width:100%;padding:14px 16px;border-radius:16px;border:2px solid var(--line);background:var(--w);font-family:inherit;font-size:16px;font-weight:600;color:var(--text);margin:6px 0;outline:none}
-input:focus,select:focus{border-color:var(--pink)}
+input:focus,select:focus{border-color:var(--pri)}
 label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:block}
 .hero{text-align:center;padding:40px 0 20px}.hero h1{font-size:26px;font-weight:900;margin:0}
 .hero-icon{font-size:80px;display:inline-block;animation:fl 3s ease-in-out infinite}
@@ -31,24 +31,24 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 .spinner{font-size:60px;animation:sp 1.4s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-radius:24px 24px 0 0;display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(160,140,170,.15);z-index:50;overflow-x:auto}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border:none;background:none;font:700 10px inherit;font-family:inherit;color:var(--tl);cursor:pointer;min-width:56px;border-radius:14px;flex-shrink:0}
-.nav-icon{font-size:22px}.nav-item.active{color:var(--pink);background:#FFF0F3}
+.nav-icon{font-size:22px}.nav-item.active{color:var(--pri);background:var(--soft)}
 .avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}
 .avatar-btn{aspect-ratio:1;border-radius:18px;border:3px solid transparent;background:#F8F4FA;font-size:34px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.avatar-btn.selected{border-color:var(--pink);background:#FFF0F3}
+.avatar-btn.selected{border-color:var(--pri);background:var(--soft)}
 .color-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin:10px 0}
 .color-btn{aspect-ratio:1;border-radius:50%;border:3px solid transparent;cursor:pointer}.color-btn.selected{border-color:var(--text);transform:scale(1.15)}
-.child-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--w);border-radius:22px;margin:10px 0;cursor:pointer;box-shadow:0 4px 12px rgba(160,140,170,.12)}
+.child-card{display:flex;align-items:center;gap:14px;padding:16px;background:var(--w);border-radius:22px;margin:10px 0;cursor:pointer;box-shadow:0 3px 10px rgba(80,110,110,.10)}
 .child-avatar{font-size:40px;width:60px;height:60px;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0}
 .task-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--w);border-radius:20px;margin:8px 0;box-shadow:0 3px 8px rgba(160,140,170,.1)}
 .task-card.done{opacity:.75;background:#F8FFF8}.task-card.pending{background:#FFFBF0}
-.task-icon{font-size:30px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:#FFF0F3;flex-shrink:0}
-.task-body{flex:1;min-width:0;font-weight:800;font-size:15px}.pts{font-size:13px;font-weight:700;color:var(--pink)}
+.task-icon{font-size:30px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:var(--soft);flex-shrink:0}
+.task-body{flex:1;min-width:0;font-weight:800;font-size:15px}.pts{font-size:13px;font-weight:700;color:var(--pri)}
 .badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:12px;flex-shrink:0}
 .b-pend{background:#FFF4E0;color:#B07700}.b-ok{background:#E8F8EC;color:#2b6b53}
-.balance-box{background:linear-gradient(135deg,var(--pink),var(--peach));border-radius:26px;padding:24px;text-align:center;color:var(--w);margin:12px 0}
+.balance-box{background:linear-gradient(135deg,#4E9381,#76B5A4);border-radius:26px;padding:24px;text-align:center;color:var(--w);margin:12px 0}
 .balance-num{font-size:56px;font-weight:900;line-height:1}
 .reward-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.reward-card{background:var(--w);border-radius:22px;padding:16px;text-align:center;box-shadow:0 4px 12px rgba(160,140,170,.12)}
+.reward-card{background:var(--w);border-radius:22px;padding:16px;text-align:center;box-shadow:0 3px 10px rgba(80,110,110,.10)}
 .reward-name{font-weight:800;font-size:14px;min-height:36px}
 .empty{text-align:center;padding:30px 20px;color:var(--tl)}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:var(--text);color:var(--w);padding:14px 22px;border-radius:18px;font-weight:700;font-size:14px;z-index:200;transition:transform .3s;max-width:90vw;text-align:center}
@@ -60,9 +60,9 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 .sec{font-weight:900;font-size:15px;margin:16px 0 8px;color:var(--tl)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0;margin:4px 0}
 .tab{flex-shrink:0;padding:10px 14px;border-radius:14px;border:none;background:var(--w);font:800 13px inherit;font-family:inherit;color:var(--tl);cursor:pointer;box-shadow:0 2px 6px rgba(160,140,170,.1)}
-.tab.active{background:var(--pink);color:var(--w)}
+.tab.active{background:var(--pri);color:var(--w)}
 .row{display:flex;align-items:center;gap:10px;padding:12px;background:var(--w);border-radius:18px;margin:8px 0;box-shadow:0 3px 8px rgba(160,140,170,.1)}
-.row-icon{font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#FFF0F3;border-radius:12px;flex-shrink:0}
+.row-icon{font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--soft);border-radius:12px;flex-shrink:0}
 .row-body{flex:1;min-width:0;font-weight:800;font-size:14px}.acts{display:flex;gap:6px}
 .ib{width:36px;height:36px;border-radius:50%;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .ib.ok{background:#E8F8EC;color:#2b6b53}.ib.no{background:#FFEBEE;color:#c62828}
@@ -71,7 +71,7 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 /* TABEL JADWAL */
 .st{width:100%;border-collapse:collapse;background:var(--w);font-size:13px;margin:8px 0}
 .st th,.st td{border:1px solid var(--line);padding:8px 6px;text-align:center;vertical-align:middle}
-.st th{background:#FFF0F3;font-weight:800}.st .tm{white-space:nowrap;font-weight:700}.st .nt{font-style:italic;color:var(--tl)}
+.st th{background:var(--soft);font-weight:800}.st .tm{white-space:nowrap;font-weight:700}.st .nt{font-style:italic;color:var(--tl)}
 .st .ac{white-space:nowrap}.st .ac .ib{display:inline-flex;width:30px;height:30px;font-size:14px}
 .seg{display:flex;gap:6px}.seg .tab{flex:1;white-space:normal}
 .two{display:flex;gap:10px}.two>div{flex:1}
@@ -110,19 +110,15 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
   </form>
 </div>
 
-<div id="screen-role" class="screen">
-  <h2>Masuk sebagai siapa?</h2>
-  <div class="card t-pink"><h3>👨‍👩‍👧 Orang Tua</h3><p class="sub">Atur jadwal, tugas, hadiah, dan setujui. Butuh PIN.</p>
-    <form id="form-parent">
-      <input id="p-name" required maxlength="20" placeholder="Nama (Ayah / Ibu)">
-      <input id="p-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6" placeholder="PIN orang tua">
-      <button type="submit" class="btn btn-primary">Masuk sebagai Orang Tua</button>
-    </form></div>
-  <div class="card"><h3>🧒 Anak</h3><p class="sub">Lihat jadwal, kerjakan tugas, tukar hadiah.</p><button class="btn btn-secondary" data-action="join-as-child">Masuk sebagai Anak</button></div>
-  <button class="btn btn-ghost" data-action="back">Batal</button>
+<div id="screen-landing" class="screen">
+  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p></div>
+  <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
+  <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
+  <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
+  <button class="btn btn-ghost" style="margin-top:28px;font-size:14px" data-action="reset-device">Ganti keluarga / keluar dari HP ini</button>
 </div>
 
-<div id="screen-pick-child" class="screen"><h2>Pilih Profilmu</h2><div id="pick-list"></div><button class="btn btn-ghost" data-action="back">Batal</button></div>
+<div id="screen-pick-child" class="screen"><h2>Pilih Profilmu</h2><p class="sub">Ketuk namamu.</p><div id="pick-list"></div><button class="btn btn-ghost" data-action="go-landing">Kembali</button></div>
 
 <div id="screen-child" class="screen">
   <div id="child-header"></div><div id="child-body"></div>
@@ -205,12 +201,16 @@ onAuthStateChanged(auth,async user=>{
   state.uid=user.uid;
   const p=getPairing();
   if(!p){showScreen('screen-onboarding');return;}
-  state.familyId=p.familyId;state.role=p.role;state.childId=p.childId||null;
+  state.familyId=p.familyId;state.role=null;state.childId=null;
   try{const d=await getDoc(doc(db,'families',p.familyId,'devices',user.uid));if(!d.exists()){localStorage.removeItem('animalRoutinePairing');showScreen('screen-onboarding');return;}}catch(e){console.warn('offline',e);}
-  startListeners();route();
+  startListeners();goLanding();
 });
 (async()=>{try{await signInAnonymously(auth);}catch(e){console.error(e);showScreen('screen-onboarding');toast('Gagal konek. Cek Firebase (Anonymous Auth) & internet.','error');}})();
-function route(){if(state.role==='parent'){state.parentTab='approval';showScreen('screen-parent');renderParent();}else{state.childTab='today';showScreen('screen-child');renderChild();}}
+function goLanding(){state.role=null;state.childId=null;closeModal();$('#land-fam').textContent=state.family?.name||'';showScreen('screen-landing');}
+function enterParent(){state.role='parent';state.parentTab='approval';showScreen('screen-parent');renderParent();}
+function enterChild(cid){state.role='child';state.childId=cid;state.childTab='today';showScreen('screen-child');renderChild();}
+// kembali ke halaman awal jika app ditinggal > 2 menit
+let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(state.role&&hiddenAt&&Date.now()-hiddenAt>120000)goLanding();});
 
 async function createFamily(name,pname,pin){
   const fid=genFid(),h=await hashPin(pin);
@@ -218,40 +218,31 @@ async function createFamily(name,pname,pin){
   await setDoc(doc(db,'families',fid,'private','pin'),{hash:h});
   await setDoc(doc(db,'families',fid,'devices',state.uid),{role:'parent',label:pname,pinHash:h,pairedAt:serverTimestamp()});
   savePairing({familyId:fid,role:'parent',childId:null});
-  Object.assign(state,{familyId:fid,role:'parent',childId:null});
+  Object.assign(state,{familyId:fid,role:null,childId:null});
   const b=writeBatch(db);
   [['Rapikan tempat tidur','🛏️',2],['Minum air 8 gelas','💧',1],['Rapikan mainan','🧸',2],['Bantu menyapu','🧹',3]].forEach((t,i)=>b.set(fdoc('tasks','seed'+i),{name:t[0],icon:t[1],points:t[2],forChild:'all',active:true,sortOrder:i}));
   [['Main game 30 menit','🎮',10],['Nonton film','🎬',15],['Es krim','🍦',20],['Main ke taman','🌳',25]].forEach((r,i)=>b.set(fdoc('rewards','seed'+i),{name:r[0],icon:r[1],cost:r[2],active:true,sortOrder:i}));
   await b.commit();
-  startListeners();toast('Keluarga dibuat! ID: '+fid,'success');route();
+  startListeners();toast('Keluarga dibuat! ID: '+fid,'success');goLanding();
 }
 async function joinFamily(fid){
   fid=fid.trim().toUpperCase();
   const s=await getDoc(doc(db,'families',fid));
   if(!s.exists())throw new Error('Keluarga tidak ditemukan');
-  state.pending={familyId:fid};showScreen('screen-role');
+  await setDoc(doc(db,'families',fid,'devices',state.uid),{role:'child',label:'HP',pairedAt:serverTimestamp()},{merge:true});
+  savePairing({familyId:fid});
+  Object.assign(state,{familyId:fid,role:null,childId:null});
+  startListeners();toast('Berhasil bergabung!','success');goLanding();
 }
-async function joinAsParent(name,pin){
-  const fid=state.pending.familyId,h=await hashPin(pin);
-  try{await setDoc(doc(db,'families',fid,'devices',state.uid),{role:'parent',label:name,pinHash:h,pairedAt:serverTimestamp()});}
+async function parentLogin(pin){
+  const h=await hashPin(pin);
+  try{await setDoc(doc(db,'families',state.familyId,'devices',state.uid),{role:'parent',pinHash:h},{merge:true});}
   catch(e){console.error(e);throw new Error('PIN salah');}
-  savePairing({familyId:fid,role:'parent',childId:null});
-  Object.assign(state,{familyId:fid,role:'parent',childId:null,pending:null});
-  startListeners();toast('Bergabung sebagai orang tua!','success');route();
+  closeModal();enterParent();
 }
-async function joinAsChild(cid){
-  const fid=state.pending.familyId;
-  const cs=await getDoc(doc(db,'families',fid,'children',cid));
-  const cn=cs.exists()?cs.data().name:'Anak';
-  await setDoc(doc(db,'families',fid,'devices',state.uid),{role:'child',childId:cid,label:cn,pairedAt:serverTimestamp()});
-  savePairing({familyId:fid,role:'child',childId:cid});
-  Object.assign(state,{familyId:fid,role:'child',childId:cid,pending:null});
-  startListeners();toast('Halo, '+cn+'!','success');route();
-}
-async function loadPick(){
-  const s=await getDocs(collection(db,'families',state.pending.familyId,'children'));
-  const l=s.docs.map(d=>({id:d.id,...d.data()}));
-  $('#pick-list').innerHTML=l.length?l.map(c=>`<div class="child-card" data-action="pick-child" data-id="${c.id}"><div class="child-avatar" style="background:${c.color||'#FFF0F3'}">${c.avatar||'🐶'}</div><div style="flex:1;font-weight:900;font-size:18px">${esc(c.name)}</div>→</div>`).join(''):`<div class="empty"><p>Belum ada anak.<br>Minta orang tua menambah anak dulu.</p></div>`;
+function renderPick(){
+  const l=state.children;
+  $('#pick-list').innerHTML=l.length?l.map(c=>`<div class="child-card" data-action="pick-child" data-id="${c.id}"><div class="child-avatar" style="background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div style="flex:1;font-weight:900;font-size:18px">${esc(c.name)}</div>→</div>`).join(''):`<div class="empty"><p>Belum ada anak.<br>Minta orang tua menambah anak dulu.</p></div>`;
 }
 
 function startListeners(){
@@ -264,7 +255,10 @@ function startListeners(){
   sub(fcol('schedules'),map('schedules'));sub(fcol('overrides'),map('overrides'));
   sub(fcol('completions'),list('completions'));sub(fcol('redemptions'),list('redemptions'));sub(fcol('ledger'),list('ledger'));
 }
-function rerender(){if(state.role==='parent')renderParent();else if(state.role==='child')renderChild();}
+function rerender(){
+  if(state.role==='parent')renderParent();else if(state.role==='child')renderChild();
+  else{const l=$('#land-fam');if(l)l.textContent=state.family?.name||'';if($('#screen-pick-child').classList.contains('active'))renderPick();}
+}
 
 const child=id=>state.children.find(c=>c.id===id);
 const byStart=(a,b)=>(a.start||'99:99').localeCompare(b.start||'99:99');
@@ -286,11 +280,11 @@ function schedTable(items,edit){
 function renderChild(){
   const c=child(state.childId);
   if(!c){$('#child-body').innerHTML=`<div class="empty"><p>Profil anak tidak ditemukan.</p></div>`;return;}
-  $('#child-header').innerHTML=`<div class="hdr"><div class="hdr-av">${c.avatar||'🐶'}</div><div class="hdr-info">Hai, ${esc(c.name)}! 🎉<div class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</div></div><div style="text-align:right;font-size:24px;font-weight:900;color:var(--pink)">⭐ ${c.balance||0}</div></div>`;
+  $('#child-header').innerHTML=`<div class="hdr"><div class="hdr-av">${c.avatar||'🐶'}</div><div class="hdr-info">Hai, ${esc(c.name)}! 🎉<div class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</div></div><div style="text-align:right;font-size:24px;font-weight:900;color:var(--pri)">⭐ ${c.balance||0}</div><button class="ib" style="background:var(--soft)" data-action="go-landing" title="Ganti pengguna">🏠</button></div>`;
   $$('#child-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.childTab));
   const B=$('#child-body'),t=state.childTab;
   if(t==='today'){const dk=todayKey();B.innerHTML=`<div class="sec">Jadwal Hari Ini (${DN[dk]})</div>${schedTable(getSched(c.id,dk))}`;}
-  else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pink)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk))}`).join('');}
+  else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pri)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk))}`).join('');}
   else if(t==='tasks')childTasks(c,B);
   else if(t==='rewards')childRewards(c,B);
   else childPoints(c,B);
@@ -312,7 +306,7 @@ function childPoints(c,B){
 
 /* ===== ORANG TUA ===== */
 function renderParent(){
-  $('#parent-header').innerHTML=`<div class="hdr"><div class="hdr-av">👨‍👩‍👧</div><div class="hdr-info">${esc(state.family?.name||'Keluarga')}<div class="sub">Mode Orang Tua</div></div></div>`;
+  $('#parent-header').innerHTML=`<div class="hdr"><div class="hdr-av">👨‍👩‍👧</div><div class="hdr-info">${esc(state.family?.name||'Keluarga')}<div class="sub">Mode Orang Tua</div></div><button class="ib" style="background:var(--soft)" data-action="go-landing" title="Kunci">🔒</button></div>`;
   $$('#parent-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.parentTab));
   const B=$('#parent-body');
   ({approval:pApproval,schedule:pSchedule,tasks:pTasks,rewards:pRewards,children:pChildren,more:pMore})[state.parentTab](B);
@@ -370,7 +364,7 @@ function pRewards(B){
   B.innerHTML=`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${r.cost} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
 }
 function pChildren(B){
-  B.innerHTML=`<div class="fid"><span class="sub" style="color:#ccc">ID Keluarga (untuk HP anak, tanpa PIN)</span><b data-action="copy-fid">${state.familyId}</b><span class="sub" style="color:#ccc">Ketuk untuk salin</span></div><button class="btn btn-primary" data-action="add-child">➕ Tambah Anak</button><div class="sec">Daftar Anak (${state.children.length})</div>`+state.children.map(c=>`<div class="row"><div class="row-icon" style="background:${c.color||'#FFF0F3'}">${c.avatar||'🐶'}</div><div class="row-body">${esc(c.name)}<div class="sub">⭐ ${c.balance||0} poin</div></div><div class="acts"><button class="ib ok" data-action="edit-child" data-id="${c.id}">✎</button><button class="ib no" data-action="del-child" data-id="${c.id}">🗑</button></div></div>`).join('');
+  B.innerHTML=`<div class="fid"><span class="sub" style="color:#ccc">ID Keluarga (untuk HP anak, tanpa PIN)</span><b data-action="copy-fid">${state.familyId}</b><span class="sub" style="color:#ccc">Ketuk untuk salin</span></div><button class="btn btn-primary" data-action="add-child">➕ Tambah Anak</button><div class="sec">Daftar Anak (${state.children.length})</div>`+state.children.map(c=>`<div class="row"><div class="row-icon" style="background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div class="row-body">${esc(c.name)}<div class="sub">⭐ ${c.balance||0} poin</div></div><div class="acts"><button class="ib ok" data-action="edit-child" data-id="${c.id}">✎</button><button class="ib no" data-action="del-child" data-id="${c.id}">🗑</button></div></div>`).join('');
 }
 function pMore(B){
   B.innerHTML=`<div class="card t-pink"><b>${esc(state.family?.name||'Keluarga')}</b><div class="sub">ID: ${state.familyId}</div></div><button class="btn btn-secondary" data-action="change-family-name">✏️ Ganti Nama Keluarga</button><button class="btn btn-warn" data-action="change-pin">🔒 Ganti PIN Orang Tua</button><button class="btn btn-danger" data-action="reset-device">🚪 Keluar dari HP Ini</button>`;
@@ -459,8 +453,10 @@ document.body.addEventListener('click',async e=>{
       case 'close-modal':closeModal();break;
       case 'child-tab':state.childTab=el.dataset.tab;renderChild();break;
       case 'parent-tab':state.parentTab=el.dataset.tab;renderParent();break;
-      case 'join-as-child':await loadPick();showScreen('screen-pick-child');break;
-      case 'pick-child':await joinAsChild(id);break;
+      case 'land-parent':openModal(`<h3>🔒 PIN Orang Tua</h3><form id="form-plogin"><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6" placeholder="••••" autofocus><button type="submit" class="btn btn-primary">Masuk</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
+      case 'land-child':renderPick();showScreen('screen-pick-child');break;
+      case 'pick-child':enterChild(id);break;
+      case 'go-landing':goLanding();break;
       case 'complete-task':await completeTask(id);break;
       case 'redeem-reward':await redeem(id);break;
       case 'approve-task':await approveTask(id);break;
@@ -498,7 +494,7 @@ document.body.addEventListener('submit',async e=>{
   try{
     if(fid==='form-create'){const pin=$('#c-pin').value;if(pin!==$('#c-pin2').value)throw new Error('PIN tidak sama');if(!/^\d{4,6}$/.test(pin))throw new Error('PIN harus 4-6 angka');await createFamily($('#c-fam').value.trim(),$('#c-name').value.trim(),pin);}
     else if(fid==='form-join')await joinFamily($('#j-fid').value);
-    else if(fid==='form-parent'){const pin=$('#p-pin').value;if(!/^\d{4,6}$/.test(pin))throw new Error('PIN harus 4-6 angka');await joinAsParent($('#p-name').value.trim(),pin);}
+    else if(fid==='form-plogin')await parentLogin(v.pin);
     else if(fid==='form-item'){
       let items=curItems();const it={id:eid||uid(),start:v.start||'',end:v.end||'',title:v.title.trim(),notes:(v.notes||'').trim()};
       items=eid?items.map(x=>x.id===eid?it:x):[...items,it];
