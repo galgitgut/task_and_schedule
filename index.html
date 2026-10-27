@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FF9AA2">
-<title>Petualangan Hewan 🐾</title>
+<title>Petualangan Malika dan Keandra 🐾</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--pink:#FF9AA2;--peach:#FFB7B2;--yellow:#FFDAC1;--mint:#B5EAD7;--sky:#A2D2FF;--text:#4A3F55;--text-l:#8B7E9A;--bg1:#FFF5E1;--bg2:#FFE4EC;--white:#fff;--ok:#4CAF50;--warn:#FFB74D;--err:#E57373}
@@ -117,7 +117,7 @@ label{font-weight:700;color:var(--text-l);font-size:14px;margin-top:8px;display:
 <div id="screen-loading" class="screen active"><div class="spinner">🐶</div><p class="subtitle">Menyiapkan petualangan...</p></div>
 
 <div id="screen-onboarding" class="screen">
-  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Hewan</h1><p class="subtitle">Jadwal harian, poin, dan hadiah untuk anak hebat</p></div>
+  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="subtitle">Jadwal harian, poin, dan hadiah untuk anak hebat</p></div>
   <button class="btn btn-primary" data-action="go-create">🏠 Buat Keluarga Baru</button>
   <button class="btn btn-secondary" data-action="go-join">🔗 Gabung Keluarga</button>
 </div>
@@ -251,7 +251,7 @@ const fmtDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0'
 const todayStr = () => fmtDate(new Date());
 const todayKey = () => DAY_KEYS[new Date().getDay()];
 const genFamilyId = () => { const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let o='FAM-'; for(let i=0;i<8;i++)o+=c[Math.floor(Math.random()*c.length)]; return o; };
-async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-hewan-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-malika-dan-keandra-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 let toastTimer;
 function toast(msg,type=''){ const t=$('#toast'); t.textContent=msg; t.className='toast show '+type; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800); }
 function showScreen(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id)?.classList.add('active'); window.scrollTo(0,0); }
@@ -612,7 +612,7 @@ function renderParentMore(body){
     <button class="btn btn-secondary" data-action="change-family-name">✏️ Ganti Nama Keluarga</button>
     <button class="btn btn-warn" data-action="change-pin">🔒 Ganti PIN Orang Tua</button>
     <button class="btn btn-danger" data-action="reset-device">🚪 Reset HP Ini (keluar)</button>
-    <div class="card tint-mint" style="margin-top:16px"><div style="font-weight:900;font-size:14px;margin-bottom:4px">Tentang</div><div class="subtitle">Petualangan Hewan v1 • Data di Firebase & cache offline</div></div>`;
+    <div class="card tint-mint" style="margin-top:16px"><div style="font-weight:900;font-size:14px;margin-bottom:4px">Tentang</div><div class="subtitle">Petualangan Malika dan Keandra v1 • Data di Firebase & cache offline</div></div>`;
 }
 
 // === SATU EVENT LISTENER UNTUK SEMUA KLIK (SUDAH DIPERBAIKI) ===
