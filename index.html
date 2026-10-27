@@ -198,7 +198,7 @@ label{font-weight:700;color:var(--text-l);font-size:14px;margin-top:8px;display:
 </div>
 
 <script type="module">
-// ==== GANTI DENGAN FIREBASE CONFIG KAMU ====
+// ==== FIREBASE CONFIG ====
 const firebaseConfig = {
   apiKey: "AIzaSyAWVFJtJ_k5Ov-Awdg3vUNZAWRUYrB8Jow",
   authDomain: "my-task-and-schedule.firebaseapp.com",
@@ -252,7 +252,7 @@ const fmtDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0'
 const todayStr = () => fmtDate(new Date());
 const todayKey = () => DAY_KEYS[new Date().getDay()];
 const genFamilyId = () => { const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let o='FAM-'; for(let i=0;i<8;i++)o+=c[Math.floor(Math.random()*c.length)]; return o; };
-async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-malika-dan-keandra-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+async function hashPin(pin){ const enc=new TextEncoder().encode('petualangan-hewan-v1:'+pin); const b=await crypto.subtle.digest('SHA-256',enc); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 let toastTimer;
 function toast(msg,type=''){ const t=$('#toast'); t.textContent=msg; t.className='toast show '+type; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800); }
 function showScreen(id){ $$('.screen').forEach(s=>s.classList.remove('active')); $('#'+id)?.classList.add('active'); window.scrollTo(0,0); }
@@ -616,9 +616,8 @@ function renderParentMore(body){
     <div class="card tint-mint" style="margin-top:16px"><div style="font-weight:900;font-size:14px;margin-bottom:4px">Tentang</div><div class="subtitle">Petualangan Malika dan Keandra v1 • Data di Firebase & cache offline</div></div>`;
 }
 
-// === SATU EVENT LISTENER UNTUK SEMUA KLIK (SUDAH DIPERBAIKI) ===
+// === EVENT LISTENER UNTUK KLIK ===
 document.body.addEventListener('click', async (e) => {
-  // 1. Handle icon/avatar/color pickers (Modal)
   const pickAvatar = e.target.closest('[data-pick-avatar]');
   if(pickAvatar){ const v=pickAvatar.dataset.pickAvatar; $$('#modal-content [data-pick-avatar]').forEach(b=>b.classList.toggle('selected',b.dataset.pickAvatar===v)); const h=$('#modal-content input[name="avatar"]'); if(h) h.value=v; return; }
   
@@ -628,7 +627,6 @@ document.body.addEventListener('click', async (e) => {
   const pickIcon = e.target.closest('[data-pick-icon]');
   if(pickIcon){ const v=pickIcon.dataset.pickIcon; $$('#modal-content [data-pick-icon]').forEach(b=>b.classList.toggle('selected',b.dataset.pickIcon===v)); const h=$('#modal-content input[name="icon"]'); if(h) h.value=v; return; }
 
-  // 2. Handle data-action buttons
   const el = e.target.closest('[data-action]'); if(!el) return;
   const action = el.dataset.action;
   try{
