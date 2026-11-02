@@ -38,3 +38,8 @@ const firebaseConfig = {
 - **Mode gelap:** tombol 🌙/☀️ di pojok atas, atau tab Lain → Tampilan (Terang / Gelap / Ikuti HP). Disimpan per HP.
 - **Rekap mingguan:** tab 📊 Rekap untuk orang tua (bisa mundur ke minggu sebelumnya). Anak bisa melihat ringkasan minggu ini di tab Poin.
 - Firestore Rules tidak perlu diubah.
+
+## Pembaruan v2.2 (Nov 2026)
+- **Refresh tidak lagi kembali ke halaman awal:** app melanjutkan ke halaman dan tab terakhir (orang tua atau anak).
+- **Kembali ke halaman awal otomatis** bila app tidak disentuh selama 5 menit (baik saat terbuka maupun ditinggal). Lamanya bisa diubah di `IDLE_MS` dalam `index.html`.
+- **Tombol kembali (back) HP:** menutup jendela yang sedang terbuka, atau kembali ke layar sebelumnya. Di layar utama muncul "Yakin mau keluar?"; tekan kembali sekali lagi untuk benar-benar keluar.

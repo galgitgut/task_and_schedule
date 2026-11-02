@@ -127,7 +127,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.1</p></div>
+  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.2</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -207,7 +207,32 @@ let tt;
 function toast(m,t=''){const e=$('#toast');e.textContent=m;e.className='toast show '+t;clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2800);}
 function showScreen(id){$$('.screen').forEach(s=>s.classList.remove('active'));$('#'+id)?.classList.add('active');window.scrollTo(0,0);}
 const openModal=h=>{$('#modal-content').innerHTML=h;$('#modal-root').classList.add('active');};
-const closeModal=()=>$('#modal-root').classList.remove('active');
+const closeModal=()=>{$('#modal-root').classList.remove('active');if(exitAsk){exitAsk=false;armBack();}};
+/* ===== TOMBOL KEMBALI (back) ===== */
+let exitAsk=false;
+const modalOpen=()=>$('#modal-root').classList.contains('active');
+function armBack(){if(history.state?.pmk!=='guard')history.pushState({pmk:'guard'},'');}
+function initBack(){
+  if(history.state?.pmk==='guard')return;           // sudah terpasang (mis. setelah refresh)
+  if(history.state?.pmk!=='base')history.replaceState({pmk:'base'},'');
+  history.pushState({pmk:'guard'},'');
+}
+function askExit(){
+  exitAsk=true;
+  $('#modal-content').innerHTML=`<div style="text-align:center"><div style="font-size:50px">🐾</div><h3>Yakin mau keluar?</h3><p class="sub">Tekan tombol <b>kembali</b> sekali lagi untuk keluar dari aplikasi.</p></div>
+  <button class="btn btn-primary" style="margin-top:16px" data-action="close-modal">👍 Tetap di sini</button>
+  <button class="btn btn-ghost" data-action="exit-app">Keluar</button>`;
+  $('#modal-root').classList.add('active');
+}
+addEventListener('popstate',()=>{
+  if(exitAsk){exitAsk=false;$('#modal-root').classList.remove('active');history.back();return;} // tekan kembali lagi = keluar
+  const scr=$('.screen.active')?.id;
+  if(modalOpen()){closeModal();armBack();return;}
+  if(scr==='screen-create'||scr==='screen-join'){showScreen('screen-onboarding');armBack();return;}
+  if(scr==='screen-pick-child'){goLanding();armBack();return;}
+  askExit();
+});
+initBack();
 const getPairing=()=>{try{return JSON.parse(localStorage.getItem('animalRoutinePairing')||'null');}catch{return null;}};
 const savePairing=p=>localStorage.setItem('animalRoutinePairing',JSON.stringify(p));
 const fcol=n=>collection(db,'families',state.familyId,n);
@@ -253,14 +278,40 @@ onAuthStateChanged(auth,async user=>{
   if(!p){showScreen('screen-onboarding');return;}
   state.familyId=p.familyId;state.role=null;state.childId=null;
   try{const d=await getDoc(doc(db,'families',p.familyId,'devices',user.uid));if(!d.exists()){localStorage.removeItem('animalRoutinePairing');showScreen('screen-onboarding');return;}}catch(e){console.warn('offline',e);}
-  startListeners();goLanding();
+  startListeners();resumeOrLanding();
 });
 (async()=>{try{await signInAnonymously(auth);}catch(e){console.error(e);showScreen('screen-onboarding');toast('Gagal konek. Cek Firebase (Anonymous Auth) & internet.','error');}})();
-function goLanding(){state.role=null;state.childId=null;closeModal();$('#land-fam').textContent=state.family?.name||'';applyTheme();showScreen('screen-landing');}
-function enterParent(){state.role='parent';state.parentTab='approval';showScreen('screen-parent');renderParent();}
-function enterChild(cid){state.role='child';state.childId=cid;state.childTab='today';showScreen('screen-child');renderChild();}
+/* ===== SESI: lanjut ke halaman terakhir setelah refresh ===== */
+const IDLE_MS=5*60*1000; // kembali ke halaman awal bila tidak disentuh selama 5 menit
+const SESS='pmkSession';
+let lastAct=Date.now(),actSaved=0;
+function saveSession(){
+  if(!state.role){try{localStorage.removeItem(SESS);}catch{}return;}
+  try{localStorage.setItem(SESS,JSON.stringify({fid:state.familyId,role:state.role,childId:state.childId,childTab:state.childTab,parentTab:state.parentTab,ed:state.ed,recapWeek:state.recapWeek,at:lastAct}));}catch{}
+}
+function loadSession(){
+  try{const x=JSON.parse(localStorage.getItem(SESS)||'null');if(x&&x.fid===state.familyId&&x.role&&Date.now()-(x.at||0)<IDLE_MS)return x;}catch{}
+  return null;
+}
+function touchActivity(){lastAct=Date.now();if(state.role&&lastAct-actSaved>15000){actSaved=lastAct;saveSession();}}
+['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,touchActivity,{passive:true,capture:true}));
+function checkIdle(){if(state.role&&Date.now()-lastAct>IDLE_MS){goLanding();toast('Kembali ke halaman awal karena lama tidak dipakai');}}
+setInterval(checkIdle,30000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveSession();else checkIdle();});
+addEventListener('pagehide',saveSession);
+function resumeOrLanding(){
+  const x=loadSession();
+  if(!x){goLanding();return;}
+  lastAct=x.at;
+  Object.assign(state,{childTab:x.childTab||'today',parentTab:x.parentTab||'approval',ed:x.ed||state.ed,recapWeek:x.recapWeek||0});
+  if(x.role==='parent'){state.role='parent';showScreen('screen-parent');renderParent();}
+  else if(x.role==='child'&&x.childId){state.role='child';state.childId=x.childId;showScreen('screen-child');renderChild();}
+  else goLanding();
+}
+function goLanding(){state.role=null;state.childId=null;closeModal();saveSession();$('#land-fam').textContent=state.family?.name||'';applyTheme();showScreen('screen-landing');}
+function enterParent(){state.role='parent';state.parentTab='approval';lastAct=Date.now();showScreen('screen-parent');renderParent();saveSession();}
+function enterChild(cid){state.role='child';state.childId=cid;state.childTab='today';lastAct=Date.now();showScreen('screen-child');renderChild();saveSession();}
 // kembali ke halaman awal jika app ditinggal > 2 menit
-let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(state.role&&hiddenAt&&Date.now()-hiddenAt>120000)goLanding();});
 
 async function createFamily(name,pname,pin){
   const fid=genFid(),h=await hashPin(pin);
@@ -330,8 +381,9 @@ function schedTable(items,edit){
 
 /* ===== ANAK ===== */
 function renderChild(){
+  saveSession();
   const c=child(state.childId);
-  if(!c){$('#child-body').innerHTML=`<div class="empty"><p>Profil anak tidak ditemukan.</p></div>`;return;}
+  if(!c){$('#child-header').innerHTML='';$('#child-body').innerHTML=state.children.length?`<div class="empty"><p>Profil anak tidak ditemukan.</p><button class="btn btn-ghost" data-action="go-landing">Kembali</button></div>`:`<div class="empty"><div class="spinner" style="font-size:40px">🐶</div><p>Memuat...</p></div>`;return;}
   $('#child-header').innerHTML=`<div class="hdr"><div class="hdr-av">${c.avatar||'🐶'}</div><div class="hdr-info">Hai, ${esc(c.name)}! 🎉<div class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</div></div><div style="text-align:right;font-size:24px;font-weight:900;color:var(--pri)">⭐ ${c.balance||0}</div>${themeBtn()}<button class="ib sf" data-action="go-landing" title="Ganti pengguna">🏠</button></div>`;
   $$('#child-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.childTab));
   const B=$('#child-body'),t=state.childTab;
@@ -367,6 +419,7 @@ function childPoints(c,B){
 
 /* ===== ORANG TUA ===== */
 function renderParent(){
+  saveSession();
   $('#parent-header').innerHTML=`<div class="hdr"><div class="hdr-av">👨‍👩‍👧</div><div class="hdr-info">${esc(state.family?.name||'Keluarga')}<div class="sub">Mode Orang Tua</div></div>${themeBtn()}<button class="ib sf" data-action="go-landing" title="Kunci">🔒</button></div>`;
   $$('#parent-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.parentTab));
   const B=$('#parent-body');
@@ -562,6 +615,7 @@ document.body.addEventListener('click',async e=>{
       case 'land-child':renderPick();showScreen('screen-pick-child');break;
       case 'pick-child':enterChild(id);break;
       case 'go-landing':goLanding();break;
+      case 'exit-app':exitAsk=false;$('#modal-root').classList.remove('active');history.back();setTimeout(()=>{try{window.close();}catch{}},150);setTimeout(()=>{if(!document.hidden){armBack();toast('Tutup aplikasi dari layar HP ya');}},600);break;
       case 'toggle-theme':setTheme(isDark()?'light':'dark');break;
       case 'set-theme':setTheme(el.dataset.v);break;
       case 'recap-week':state.recapWeek=Math.min(0,state.recapWeek+parseInt(el.dataset.d,10));renderParent();break;
