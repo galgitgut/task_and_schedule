@@ -32,3 +32,9 @@ const firebaseConfig = {
   messagingSenderId: "GANTI",
   appId: "GANTI"
 };
+## Pembaruan v2.1 (Nov 2026)
+- **Poin manual:** tab Anak → tombol **±** → Bonus atau Kurangi poin, dengan alasan yang terlihat oleh anak. Poin tidak bisa dikurangi sampai di bawah 0.
+- **Tugas berulang:** saat menambah atau mengedit tugas, isi "Boleh dikerjakan berapa kali sehari" (1–10). Tugas lama tetap 1 kali.
+- **Mode gelap:** tombol 🌙/☀️ di pojok atas, atau tab Lain → Tampilan (Terang / Gelap / Ikuti HP). Disimpan per HP.
+- **Rekap mingguan:** tab 📊 Rekap untuk orang tua (bisa mundur ke minggu sebelumnya). Anak bisa melihat ringkasan minggu ini di tab Poin.
+- Firestore Rules tidak perlu diubah.
