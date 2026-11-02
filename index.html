@@ -127,7 +127,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.2</p></div>
+  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.3</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -197,6 +197,7 @@ const state={uid:null,familyId:null,role:null,childId:null,family:null,children:
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const nf=n=>Number(n||0).toLocaleString('id-ID');
 const todayStr=()=>fmt(new Date()), todayKey=()=>DK[new Date().getDay()];
 // tanggal hari tertentu pada minggu ini (Senin-Minggu)
 const weekDate=dk=>{const n=new Date();const dow=(n.getDay()+6)%7;return fmt(new Date(n.getFullYear(),n.getMonth(),n.getDate()-dow+MON.indexOf(dk)));};
@@ -406,7 +407,7 @@ function childTasks(c,B){
 function childRewards(c,B){
   const l=state.rewards.filter(r=>r.active!==false),bal=c.balance||0;
   if(!l.length){B.innerHTML=`<div class="empty"><p>Belum ada hadiah.</p></div>`;return;}
-  B.innerHTML=`<div class="sec">Hadiah yang Bisa Ditukar</div><div class="reward-grid">${l.map(r=>{const p=state.redemptions.find(x=>x.childId===c.id&&x.rewardId===r.id&&x.status==='pending');return `<div class="reward-card"><div style="font-size:48px">${r.icon||'🎁'}</div><div class="reward-name">${esc(r.name)}</div><div class="pts" style="font-size:16px;margin:4px 0">⭐ ${r.cost}</div>${p?`<span class="badge b-pend">⏳ Menunggu</span>`:bal>=r.cost?`<button class="btn btn-primary btn-sm" style="width:100%" data-action="redeem-reward" data-id="${r.id}">Tukar</button>`:`<div class="sub">Kurang ${r.cost-bal} poin</div>`}</div>`;}).join('')}</div>`;
+  B.innerHTML=`<div class="sec">Hadiah yang Bisa Ditukar</div><div class="reward-grid">${l.map(r=>{const p=state.redemptions.find(x=>x.childId===c.id&&x.rewardId===r.id&&x.status==='pending');return `<div class="reward-card"><div style="font-size:48px">${r.icon||'🎁'}</div><div class="reward-name">${esc(r.name)}</div><div class="pts" style="font-size:16px;margin:4px 0">⭐ ${nf(r.cost)}</div>${p?`<span class="badge b-pend">⏳ Menunggu</span>`:bal>=r.cost?`<button class="btn btn-primary btn-sm" style="width:100%" data-action="redeem-reward" data-id="${r.id}">Tukar</button>`:`<div class="sub">Kurang ${nf(r.cost-bal)} poin</div>`}</div>`;}).join('')}</div>`;
 }
 const daysRow=(arr,w)=>`<div class="days7">${MON.map((dk,i)=>`<div class="${arr[i]?'on':''}${w.days[i]===todayStr()?'" style="outline:2px solid var(--pri)':''}">${DN[dk].slice(0,3)}<b>${arr[i]||'·'}</b></div>`).join('')}</div>`;
 function childPoints(c,B){
@@ -430,7 +431,7 @@ function pApproval(B){
   const rs=state.redemptions.filter(r=>r.status==='pending');
   const ok=(a,id)=>`<div class="acts"><button class="ib ok" data-action="approve-${a}" data-id="${id}">✓</button><button class="ib no" data-action="reject-${a}" data-id="${id}">✕</button></div>`;
   B.innerHTML=`<div class="sec">Tugas Menunggu (${ts.length})</div>`+(ts.length?ts.map(x=>{const c=child(x.childId),t=state.tasks.find(k=>k.id===x.taskId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.taskName)}<div class="sub">${esc(c?.name||'?')} • ${x.date} • +${t?.points??0} poin</div></div>${ok('task',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">🎉 Tidak ada tugas menunggu.</div>`)
-  +`<div class="sec">Tukar Hadiah (${rs.length})</div>`+(rs.length?rs.map(x=>{const c=child(x.childId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.rewardName)}<div class="sub">${esc(c?.name||'?')} • ${x.cost} poin</div></div>${ok('redemption',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">✨ Tidak ada permintaan tukar.</div>`);
+  +`<div class="sec">Tukar Hadiah (${rs.length})</div>`+(rs.length?rs.map(x=>{const c=child(x.childId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.rewardName)}<div class="sub">${esc(c?.name||'?')} • ${nf(x.cost)} poin</div></div>${ok('redemption',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">✨ Tidak ada permintaan tukar.</div>`);
 }
 function curItems(){
   const {childId:c,day:d,mode}=state.ed,tpl=state.schedules[c]?.days?.[d]||[],ov=state.overrides[`${weekDate(d)}_${c}`];
@@ -475,7 +476,7 @@ function pTasks(B){
   B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
 }
 function pRewards(B){
-  B.innerHTML=`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${r.cost} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
+  B.innerHTML=`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${nf(r.cost)} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
 }
 function pChildren(B){
   B.innerHTML=`<div class="fid"><span class="sub" style="color:#ccc">ID Keluarga (untuk HP anak, tanpa PIN)</span><b data-action="copy-fid">${state.familyId}</b><span class="sub" style="color:#ccc">Ketuk untuk salin</span></div><button class="btn btn-primary" data-action="add-child">➕ Tambah Anak</button><div class="sec">Daftar Anak (${state.children.length})</div>`+state.children.map(c=>`<div class="row"><div class="row-icon" style="background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div class="row-body">${esc(c.name)}<div class="sub">⭐ ${c.balance||0} poin</div></div><div class="acts"><button class="ib sf" style="font-weight:900" data-action="adjust-points" data-id="${c.id}" title="Tambah/kurangi poin">±</button><button class="ib ok" data-action="edit-child" data-id="${c.id}">✎</button><button class="ib no" data-action="del-child" data-id="${c.id}">🗑</button></div></div>`).join('');
@@ -544,7 +545,7 @@ function rewardModal(id){
   openModal(`<h3>${r?'Edit':'Tambah'} Hadiah</h3><form id="form-reward" data-id="${id||''}">
   <label>Nama Hadiah</label><input name="name" required maxlength="60" value="${esc(r?.name||'')}">
   <label>Ikon</label>${grid(RICONS,r?.icon||RICONS[0],'icon')}
-  <label>Harga (poin)</label><input name="cost" type="number" min="1" max="9999" required value="${r?.cost??10}">
+  <label>Harga (poin)</label><input name="cost" type="number" min="1" max="999999" required inputmode="numeric" value="${r?.cost??10}"><p class="sub">Maksimal 999.999 poin.</p>
   <label class="chk"><input type="checkbox" name="active" ${r?.active!==false?'checked':''}>Aktif</label>
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
@@ -674,7 +675,7 @@ document.body.addEventListener('submit',async e=>{
       closeModal();toast('Tugas disimpan','success');
     }
     else if(fid==='form-reward'){
-      const d={name:v.name.trim(),icon:v.icon,cost:parseInt(v.cost,10)||1,active:!!v.active};
+      const d={name:v.name.trim(),icon:v.icon,cost:Math.min(999999,Math.max(1,parseInt(v.cost,10)||1)),active:!!v.active};
       if(eid)await updateDoc(fdoc('rewards',eid),d);else await setDoc(doc(fcol('rewards')),{...d,sortOrder:state.rewards.length});
       closeModal();toast('Hadiah disimpan','success');
     }

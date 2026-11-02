@@ -43,3 +43,6 @@ const firebaseConfig = {
 - **Refresh tidak lagi kembali ke halaman awal:** app melanjutkan ke halaman dan tab terakhir (orang tua atau anak).
 - **Kembali ke halaman awal otomatis** bila app tidak disentuh selama 5 menit (baik saat terbuka maupun ditinggal). Lamanya bisa diubah di `IDLE_MS` dalam `index.html`.
 - **Tombol kembali (back) HP:** menutup jendela yang sedang terbuka, atau kembali ke layar sebelumnya. Di layar utama muncul "Yakin mau keluar?"; tekan kembali sekali lagi untuk benar-benar keluar.
+
+## Pembaruan v2.3
+- Harga hadiah bisa sampai 6 digit (maks 999.999 poin), dan angka besar ditampilkan dengan titik ribuan (250.000).
