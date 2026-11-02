@@ -46,3 +46,13 @@ const firebaseConfig = {
 
 ## Pembaruan v2.3
 - Harga hadiah bisa sampai 6 digit (maks 999.999 poin), dan angka besar ditampilkan dengan titik ribuan (250.000).
+
+## Pembaruan v2.4 (Nov 2026)
+- **Hari Ini lebih hidup:** jadwal tampil sebagai kartu. Kegiatan yang sedang berlangsung disorot ("Sekarang"), yang sudah lewat dibuat redup, dan ada hitung mundur ke kegiatan berikutnya ("25 menit lagi: Mengaji"). Tampilan diperbarui otomatis tiap 30 detik.
+- **Tugas di jadwal:** saat menambah atau mengedit tugas, isi "Jam muncul di Hari Ini" (opsional). Tugas tampil di jadwal Hari Ini pada jam tersebut dengan tombol **Selesai**. Tugas tanpa jam tampil di bagian "Tugas Hari Ini".
+- **Setujui Semua:** di tab Setujui, satu tombol menyetujui semua tugas yang menunggu (muncul jika ada 2 atau lebih).
+- **Streak 🔥 dan 14 lencana hewan 🏅:** streak bertambah setiap hari yang punya minimal 1 tugas disetujui. Lencana terbuka berdasarkan jumlah tugas, streak terpanjang, total poin, tukar hadiah pertama, dan misi keluarga. Ada di tab Poin, dan anak mendapat notifikasi saat membuka lencana baru.
+- **Target tabungan 🎯:** anak memilih hadiah impian di tab Hadiah ("Jadikan target"), lalu muncul progress bar beserta perkiraan hari. Orang tua juga bisa memasangnya lewat tab Anak → ✎.
+- **Misi keluarga 🤝:** tab Hadiah (orang tua) → Buat Misi. Isinya target poin bersama untuk semua anak. Semua poin tugas dan bonus sejak misi dimulai ikut dihitung, **tanpa mengurangi saldo**. Setelah tercapai, orang tua menekan "Tandai Selesai".
+- Data baru disimpan sebagai field di dokumen yang sudah ada: `tasks.time`, `children.goalRewardId`, `families.mission`, dan `families.missionHistory`. Tidak ada koleksi baru.
+- **Catatan Rules:** jika Firestore Rules melarang HP anak mengubah dokumen `children`, anak tidak bisa memilih target sendiri. App akan menampilkan pesan agar orang tua yang memasangnya.
