@@ -91,6 +91,24 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 .days7 div{border-radius:10px;padding:6px 0;text-align:center;font-size:11px;font-weight:700;color:var(--tl);background:var(--chip)}
 .days7 div b{display:block;font-size:15px;color:var(--text)}.days7 .on{background:var(--soft)}.days7 .on b{color:var(--pri)}
 .mini{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}.mini:last-child{border:none}
+/* v2.4: HARI INI, TARGET, LENCANA, MISI */
+.tl{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:18px;margin:8px 0;box-shadow:0 3px 8px rgba(160,140,170,.1);border-left:6px solid transparent;transition:opacity .3s}
+.tl.past{opacity:.5}.tl.past b{text-decoration:line-through;text-decoration-thickness:2px}
+.tl.now{border-left-color:var(--pri);background:var(--soft);box-shadow:0 4px 14px rgba(78,147,129,.25)}
+.tl-t{min-width:50px;text-align:center;font-weight:900;font-size:14px;color:var(--text)}.tl-t span{font-weight:700;font-size:11px;color:var(--tl)}
+.tl-b{flex:1;min-width:0;font-size:15px}
+.task-card .tl-t{min-width:44px}
+.nowbox{background:linear-gradient(135deg,var(--bal1),var(--bal2));color:#fff;border-radius:22px;padding:14px 16px;margin:8px 0}
+.nowbox .sub{color:rgba(255,255,255,.85)}.nowbox b{font-size:18px}
+.pulse{animation:pl 1.6s ease-in-out infinite}@keyframes pl{50%{transform:scale(1.15)}}
+.prog{height:14px;background:var(--chip);border-radius:10px;overflow:hidden}.prog>i{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,var(--bal1),var(--bal2));transition:width .5s}
+.chip{display:inline-block;background:var(--chip);border-radius:12px;padding:4px 10px;font-size:12px;font-weight:800}
+.streak{display:inline-block;background:var(--pdbg);color:var(--pdfg);border-radius:12px;padding:2px 8px;font-size:12px;font-weight:900}
+.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bdg{background:var(--card);border-radius:18px;padding:10px 6px;text-align:center;box-shadow:0 3px 8px rgba(160,140,170,.1)}
+.bdg div{font-size:36px}.bdg b{display:block;font-size:12px}.bdg span{font-size:10px;color:var(--tl);display:block;line-height:1.2}
+.bdg.off div{filter:grayscale(1);opacity:.35}.bdg.off b{color:var(--tl)}
+.goal-on{outline:3px solid var(--pri)}
 </style>
 </head>
 <body>
@@ -127,7 +145,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.3</p></div>
+  <div class="hero"><div class="hero-icon">🐾</div><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.4</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -190,6 +208,7 @@ const DN={sun:'Minggu',mon:'Senin',tue:'Selasa',wed:'Rabu',thu:'Kamis',fri:'Juma
 const ANIMALS=['🐶','🐱','🐰','🐼','🦊','🐨','🐯','🦁','🐸','🐷','🐵','🐔','🐧','🦄','🐻','🐮'];
 const COLORS=['#FF9AA2','#A2D2FF','#B5EAD7','#FFDAC1','#C7CEEA','#FFB7B2','#E2F0CB','#FFC8DD'];
 const TICONS=['🛏️','💧','🦷','🧸','🧹','🍽️','👕','🚿','📚','🌱','🐶','🗑️','🧺','🍎','⭐','🎨'];
+const MICONS=['🏕️','🏖️','🍕','🎡','🎬','🏊','🦁','🍦','🎳','🚂','🍜','🎉','⛺','🎢','🧺','🎠'];
 const RICONS=['🎁','🎮','🎬','🍦','🌳','🍕','📱','🎨','⚽','🎪','🍫','🧁','🚲','🎯','🎈','🏊'];
 
 const state={uid:null,familyId:null,role:null,childId:null,family:null,children:[],tasks:[],rewards:[],schedules:{},overrides:{},completions:[],redemptions:[],ledger:[],unsubs:[],childTab:'today',parentTab:'approval',recapWeek:0,ed:{childId:null,day:'mon',mode:'perm'},pending:null};
@@ -271,6 +290,104 @@ function weekStats(cid,w){
     rewards:led.filter(x=>x.type==='redeem').map(x=>x.note),manual:led.filter(x=>x.type==='bonus'||x.type==='penalty')};
 }
 const LICON={earn:'✅',redeem:'🎁',bonus:'🎉',penalty:'⚠️'};
+/* ===== v2.4: WAKTU, STREAK, LENCANA, TARGET, MISI ===== */
+const toMin=s=>{if(!/^\d{1,2}:\d{2}$/.test(s||''))return null;const [h,m]=s.split(':').map(Number);return h*60+m;};
+const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes();};
+const durTxt=m=>m<60?`${m} menit`:`${Math.floor(m/60)} jam${m%60?` ${m%60} menit`:''}`;
+const addDays=(s,k)=>{const [y,m,d]=s.split('-').map(Number);return fmt(new Date(y,m-1,d+k));};
+const tsec=x=>x.createdAt?.seconds??Date.now()/1000;
+// streak: hari berturut-turut dengan minimal 1 tugas disetujui. Jika hari ini belum ada, hitung dari kemarin (streak belum putus).
+function streakOf(ds){const t=todayStr();let d=ds.has(t)?t:addDays(t,-1),n=0;while(ds.has(d)){n++;d=addDays(d,-1);}return n;}
+function bestStreak(ds){let b=0,c=0,prev=null;[...ds].sort().forEach(d=>{c=prev&&addDays(prev,1)===d?c+1:1;b=Math.max(b,c);prev=d;});return b;}
+const apDates=(cid,tid)=>new Set(state.completions.filter(x=>x.childId===cid&&x.status==='approved'&&(!tid||x.taskId===tid)).map(x=>x.date));
+function childStats(cid){
+  const ds=apDates(cid),led=state.ledger.filter(x=>x.childId===cid);
+  return {tasks:state.completions.filter(x=>x.childId===cid&&x.status==='approved').length,streak:streakOf(ds),best:bestStreak(ds),
+    earned:led.filter(x=>x.type==='earn'||x.type==='bonus').reduce((a,x)=>a+(x.delta||0),0),
+    redeems:led.filter(x=>x.type==='redeem').length,
+    missions:(state.family?.missionHistory||[]).filter(m=>(m.contrib?.[cid]||0)>0).length};
+}
+const BADGES=[
+  ['🐣','Anak Ayam','Tugas pertama disetujui',s=>s.tasks>=1],
+  ['🐰','Kelinci Rajin','10 tugas selesai',s=>s.tasks>=10],
+  ['🦊','Rubah Cerdik','50 tugas selesai',s=>s.tasks>=50],
+  ['🐼','Panda Hebat','100 tugas selesai',s=>s.tasks>=100],
+  ['🦁','Raja Hutan','250 tugas selesai',s=>s.tasks>=250],
+  ['🐢','Kura-kura Tekun','Rajin 3 hari berturut-turut',s=>s.best>=3],
+  ['🐝','Lebah Disiplin','Rajin 7 hari berturut-turut',s=>s.best>=7],
+  ['🦅','Elang Juara','Rajin 14 hari berturut-turut',s=>s.best>=14],
+  ['🐘','Gajah Setia','Rajin 30 hari berturut-turut',s=>s.best>=30],
+  ['🐿️','Tupai Penabung','Kumpulkan 100 poin',s=>s.earned>=100],
+  ['🦉','Burung Hantu Bijak','Kumpulkan 500 poin',s=>s.earned>=500],
+  ['🐳','Paus Raksasa','Kumpulkan 1.000 poin',s=>s.earned>=1000],
+  ['🐧','Penguin Gembira','Tukar hadiah pertama',s=>s.redeems>=1],
+  ['🐜','Semut Kompak','Ikut menyelesaikan misi keluarga',s=>s.missions>=1],
+];
+const myBadges=s=>BADGES.filter(b=>b[3](s));
+// beri tahu anak bila ada lencana baru (disimpan per HP)
+let badgeT=null;
+function checkNewBadges(c,s){
+  if(!state.completions.length&&!state.ledger.length)return;
+  clearTimeout(badgeT);badgeT=setTimeout(()=>{ // tunggu data selesai dimuat
+    const k='pmkBadges_'+c.id;let seen;try{seen=JSON.parse(localStorage.getItem(k)||'null');}catch{seen=null;}
+    const got=myBadges(childStats(c.id)).map(b=>b[0]);
+    if(seen===null){try{localStorage.setItem(k,JSON.stringify(got));}catch{}return;} // pertama kali: jangan banjiri notifikasi
+    const nw=BADGES.filter(b=>got.includes(b[0])&&!seen.includes(b[0]));
+    if(nw.length){toast(`🏅 Lencana baru: ${nw[0][0]} ${nw[0][1]}${nw.length>1?` (+${nw.length-1} lagi)`:''}!`,'success');try{localStorage.setItem(k,JSON.stringify(got));}catch{}}
+  },1500);
+}
+// rata-rata poin masuk per hari (7 hari terakhir)
+function avgDaily(cid){const s0=Date.now()/1000-7*86400;return state.ledger.filter(x=>x.childId===cid&&(x.type==='earn'||x.type==='bonus')&&tsec(x)>=s0).reduce((a,x)=>a+(x.delta||0),0)/7;}
+const goalOf=c=>state.rewards.find(r=>r.id===c?.goalRewardId&&r.active!==false);
+function goalCard(c,forChild){
+  const r=goalOf(c);
+  if(!r)return forChild?`<div class="card t-mint"><b>🎯 Target Tabungan</b><p class="sub">Belum ada target. Buka tab 🎁 Hadiah, lalu ketuk <b>🎯 Jadikan target</b> pada hadiah impianmu.</p></div>`:'';
+  const bal=c.balance||0,pct=Math.min(100,Math.floor(bal/r.cost*100)),left=Math.max(0,r.cost-bal),avg=avgDaily(c.id);
+  const est=left&&avg>0?` • kira-kira ${Math.ceil(left/avg)} hari lagi`:'';
+  return `<div class="card t-mint"><div style="display:flex;align-items:center;gap:12px"><div style="font-size:44px">${r.icon||'🎁'}</div><div style="flex:1"><div class="sub" style="font-weight:800">🎯 Target ${forChild?'Tabunganku':'Tabungan'}</div><b style="font-size:16px">${esc(r.name)}</b></div><b style="font-size:18px;color:var(--pri)">${pct}%</b></div>
+  <div class="prog" style="margin:10px 0 6px"><i style="width:${pct}%"></i></div>
+  <div class="sub" style="font-weight:700">⭐ ${nf(Math.min(bal,r.cost))} / ${nf(r.cost)} ${left?`— kurang ${nf(left)}${est}`:'— 🎉 Poin sudah cukup!'}</div>
+  ${forChild&&!left?`<button class="btn btn-primary btn-sm" style="margin-top:8px" data-action="redeem-reward" data-id="${r.id}">🎁 Tukar sekarang</button>`:''}</div>`;
+}
+async function setGoal(cid,rid){
+  try{await updateDoc(fdoc('children',cid),{goalRewardId:rid||null});}
+  catch(e){console.error(e);throw new Error('Belum bisa dari HP ini. Minta Ayah/Ibu memasang target lewat tab Anak ✎.');}
+  toast(rid?'🎯 Target dipasang!':'Target dilepas','success');
+}
+// misi keluarga: semua poin masuk (tugas + bonus) semua anak sejak misi dimulai. Saldo anak TIDAK berkurang.
+function missionProg(m){
+  const contrib={};let total=0;
+  state.ledger.filter(x=>(x.type==='earn'||x.type==='bonus')&&tsec(x)>=(m.start||0)).forEach(x=>{contrib[x.childId]=(contrib[x.childId]||0)+(x.delta||0);total+=x.delta||0;});
+  return {total,contrib,pct:Math.min(100,Math.floor(total/(m.target||1)*100)),done:total>=(m.target||1)};
+}
+function missionCard(parent){
+  const m=state.family?.mission,hist=state.family?.missionHistory||[];
+  if(!m)return parent?`<div class="card t-yellow"><b>🤝 Misi Keluarga</b><p class="sub">Target poin bersama untuk semua anak, misalnya "Piknik ke pantai". Poin yang didapat anak ikut mengisi misi tanpa mengurangi saldo mereka.${hist.length?` Misi selesai: ${hist.length}.`:''}</p><button class="btn btn-primary btn-sm" style="margin-top:8px" data-action="mission-edit">➕ Buat Misi</button></div>`:'';
+  const p=missionProg(m);
+  return `<div class="card t-yellow"><div style="display:flex;align-items:center;gap:12px"><div style="font-size:44px" class="${p.done?'pulse':''}">${m.icon||'🏕️'}</div><div style="flex:1"><div class="sub" style="font-weight:800">🤝 Misi Keluarga</div><b style="font-size:16px">${esc(m.name)}</b></div><b style="font-size:18px;color:var(--pri)">${p.pct}%</b></div>
+  <div class="prog" style="margin:10px 0 6px"><i style="width:${p.pct}%"></i></div>
+  <div class="sub" style="font-weight:700">⭐ ${nf(p.total)} / ${nf(m.target)} ${p.done?'— 🎉 Misi berhasil!':`— kurang ${nf(m.target-p.total)}`}</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${state.children.map(c=>`<span class="chip">${c.avatar||'🐶'} ${esc(c.name)} +${nf(p.contrib[c.id]||0)}</span>`).join('')}</div>
+  ${parent?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">${p.done?`<button class="btn btn-primary btn-sm" data-action="mission-finish">🎉 Tandai Selesai</button>`:''}<button class="btn btn-ghost btn-sm" data-action="mission-edit">✎ Ubah</button><button class="btn btn-ghost btn-sm" data-action="mission-cancel">Batalkan</button></div>`
+  :`<p class="sub" style="margin-top:8px">${p.done?'Hore! Tunggu Ayah/Ibu mewujudkannya 🎉':'Setiap poin yang kalian dapat ikut mengisi misi ini. Poinmu tidak berkurang!'}</p>`}</div>`;
+}
+function missionModal(){
+  const m=state.family?.mission;
+  openModal(`<h3>${m?'Ubah':'Buat'} Misi Keluarga</h3><form id="form-mission">
+  <label>Nama Misi</label><input name="name" required maxlength="50" value="${esc(m?.name||'')}" placeholder="Piknik ke pantai">
+  <label>Ikon</label>${grid(MICONS,m?.icon||MICONS[0],'icon')}
+  <label>Target poin bersama</label><input name="target" type="number" min="1" max="999999" required inputmode="numeric" value="${m?.target??200}">
+  <p class="sub">${m?'Poin dihitung sejak misi ini dibuat.':'Poin dihitung mulai sekarang.'} Saldo anak tidak berkurang.</p>
+  <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
+}
+async function finishMission(){
+  const m=state.family?.mission;if(!m)return;
+  const p=missionProg(m);
+  if(!confirm(`Tandai misi "${m.name}" selesai?`))return;
+  const hist=[...(state.family?.missionHistory||[]),{name:m.name,icon:m.icon,target:m.target,start:m.start,end:Math.floor(Date.now()/1000),total:p.total,contrib:p.contrib}].slice(-30);
+  await updateDoc(doc(db,'families',state.familyId),{mission:null,missionHistory:hist});
+  toast('🎉 Misi selesai! Selamat bersenang-senang','success');
+}
 
 onAuthStateChanged(auth,async user=>{
   if(!user||state.uid)return;
@@ -298,6 +415,8 @@ function touchActivity(){lastAct=Date.now();if(state.role&&lastAct-actSaved>1500
 ['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,touchActivity,{passive:true,capture:true}));
 function checkIdle(){if(state.role&&Date.now()-lastAct>IDLE_MS){goLanding();toast('Kembali ke halaman awal karena lama tidak dipakai');}}
 setInterval(checkIdle,30000);
+// Hari Ini: perbarui sorotan & hitung mundur tiap 30 detik
+setInterval(()=>{if(state.role==='child'&&state.childTab==='today'&&!modalOpen()&&!document.hidden)renderChild();},30000);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)saveSession();else checkIdle();});
 addEventListener('pagehide',saveSession);
 function resumeOrLanding(){
@@ -385,36 +504,67 @@ function renderChild(){
   saveSession();
   const c=child(state.childId);
   if(!c){$('#child-header').innerHTML='';$('#child-body').innerHTML=state.children.length?`<div class="empty"><p>Profil anak tidak ditemukan.</p><button class="btn btn-ghost" data-action="go-landing">Kembali</button></div>`:`<div class="empty"><div class="spinner" style="font-size:40px">🐶</div><p>Memuat...</p></div>`;return;}
-  $('#child-header').innerHTML=`<div class="hdr"><div class="hdr-av">${c.avatar||'🐶'}</div><div class="hdr-info">Hai, ${esc(c.name)}! 🎉<div class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</div></div><div style="text-align:right;font-size:24px;font-weight:900;color:var(--pri)">⭐ ${c.balance||0}</div>${themeBtn()}<button class="ib sf" data-action="go-landing" title="Ganti pengguna">🏠</button></div>`;
+  const st=childStats(c.id);checkNewBadges(c,st);
+  $('#child-header').innerHTML=`<div class="hdr"><div class="hdr-av">${c.avatar||'🐶'}</div><div class="hdr-info">Hai, ${esc(c.name)}! 🎉<div class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}${st.streak?` <span class="streak">🔥 ${st.streak} hari</span>`:''}</div></div><div style="text-align:right;font-size:24px;font-weight:900;color:var(--pri)">⭐ ${nf(c.balance)}</div>${themeBtn()}<button class="ib sf" data-action="go-landing" title="Ganti pengguna">🏠</button></div>`;
   $$('#child-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.childTab));
   const B=$('#child-body'),t=state.childTab;
-  if(t==='today'){const dk=todayKey();B.innerHTML=`<div class="sec">Jadwal Hari Ini (${DN[dk]})</div>${schedTable(getSched(c.id,dk))}`;}
+  if(t==='today')childToday(c,B);
   else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pri)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk))}`).join('');}
   else if(t==='tasks')childTasks(c,B);
   else if(t==='rewards')childRewards(c,B);
   else childPoints(c,B);
 }
+// kartu satu tugas (dipakai di tab Tugas dan di Hari Ini)
+function taskCard(c,t,d,withTime){
+  const xs=getComps(c.id,t.id,d),max=maxOf(t),ap=xs.filter(x=>x.status==='approved').length,pd=xs.length-ap,left=max-xs.length;
+  const cls=left>0?(pd?'pending':''):(pd?'pending':'done');
+  const right=left>0?`<button class="btn btn-primary btn-sm" data-action="complete-task" data-id="${t.id}">Selesai</button>`:pd?`<span class="badge b-pend">⏳ Menunggu</span>`:`<span class="badge b-ok">✓ Disetujui</span>`;
+  const prog=max>1?`<div class="sub">Hari ini: ${xs.length}/${max} kali${ap?` • ✓ ${ap}`:''}${pd?` • ⏳ ${pd}`:''}</div>`:(left>0&&pd?`<div class="sub">⏳ Menunggu</div>`:'');
+  const sk=streakOf(apDates(c.id,t.id));
+  return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=2?` <span class="streak">🔥 ${sk} hari</span>`:''}</div>${prog}</div>${right}</div>`;
+}
+function childToday(c,B){
+  const dk=todayKey(),d=todayStr(),now=nowMin();
+  const sch=getSched(c.id,dk).map(a=>({k:'s',a,s:toMin(a.start)}));
+  const timed=sch.filter(x=>x.s!=null);
+  // akhir kegiatan: jam selesai, atau mulai kegiatan berikutnya, atau +60 menit
+  sch.forEach(x=>{if(x.s==null)return;let e=toMin(x.a.end);if(e==null||e<=x.s){const nx=timed.find(y=>y.s>x.s);e=nx?nx.s:x.s+60;}x.e=e;x.past=e<=now;x.now=x.s<=now&&now<e;});
+  const ts=myTasks(c.id),tTasks=ts.filter(t=>toMin(t.time)!=null).map(t=>({k:'t',t,s:toMin(t.time)})),loose=ts.filter(t=>toMin(t.time)==null);
+  const all=[...sch,...tTasks].sort((a,b)=>(a.s??9999)-(b.s??9999)||(a.k==='s'?-1:1));
+  const cur=sch.filter(x=>x.now),nxt=timed.find(x=>x.s>now);
+  let box='';
+  if(cur.length||nxt)box=`<div class="nowbox">${cur.map(x=>`<div class="sub">📍 Sekarang${x.a.end?` (sampai ${x.a.end})`:''}</div><b>${esc(x.a.title)}</b>`).join('<div style="height:6px"></div>')}
+    ${nxt?`<div class="sub" style="margin-top:${cur.length?'10px':'0'}">⏰ <b style="font-size:15px;display:inline-block" class="${nxt.s-now<=10?'pulse':''}">${durTxt(nxt.s-now)} lagi</b> (${nxt.a.start})</div><div style="font-weight:800">${esc(nxt.a.title)}</div>`:''}</div>`;
+  else if(timed.length)box=`<div class="nowbox"><b>🌙 Kegiatan hari ini sudah selesai.</b><div class="sub">Hebat! Saatnya istirahat.</div></div>`;
+  const row=x=>x.k==='t'?taskCard(c,x.t,d,true)
+    :`<div class="tl ${x.now?'now':x.past?'past':''}"><div class="tl-t">${x.a.start||'-'}${x.a.end?`<br><span>${x.a.end}</span>`:''}</div><div class="tl-b"><b>${esc(x.a.title)}</b>${x.a.notes?`<div class="sub" style="font-style:italic">${esc(x.a.notes)}</div>`:''}</div>${x.now?'<span class="badge b-ok">Sekarang</span>':x.past?'<span class="sub">✓</span>':''}</div>`;
+  B.innerHTML=box+`<div class="sec">Jadwal Hari Ini (${DN[dk]})</div>`+(all.length?all.map(row).join(''):`<p class="sub" style="padding:8px">Belum ada jadwal.</p>`)
+    +(loose.length?`<div class="sec">Tugas Hari Ini — dapat poin!</div>${loose.map(t=>taskCard(c,t,d)).join('')}`:'');
+}
 function childTasks(c,B){
   const d=todayStr(),ts=myTasks(c.id);
   if(!ts.length){B.innerHTML=`<div class="empty"><div style="font-size:50px">📝</div><p>Belum ada tugas tambahan.</p></div>`;return;}
-  B.innerHTML=`<div class="sec">Tugas Tambahan — dapat poin!</div>`+ts.map(t=>{
-    const xs=getComps(c.id,t.id,d),max=maxOf(t),ap=xs.filter(x=>x.status==='approved').length,pd=xs.length-ap,left=max-xs.length;
-    const cls=left>0?(pd?'pending':''):(pd?'pending':'done');
-    const right=left>0?`<button class="btn btn-primary btn-sm" data-action="complete-task" data-id="${t.id}">Selesai</button>`:pd?`<span class="badge b-pend">⏳ Menunggu</span>`:`<span class="badge b-ok">✓ Disetujui</span>`;
-    const prog=max>1?`<div class="sub">Hari ini: ${xs.length}/${max} kali${ap?` • ✓ ${ap}`:''}${pd?` • ⏳ ${pd}`:''}</div>`:(left>0&&pd?`<div class="sub">⏳ Menunggu</div>`:'');
-    return `<div class="task-card ${cls}"><div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}</div>${prog}</div>${right}</div>`;}).join('');
+  B.innerHTML=`<div class="sec">Tugas Tambahan — dapat poin!</div>`+ts.map(t=>taskCard(c,t,d,false)).join('');
 }
 function childRewards(c,B){
   const l=state.rewards.filter(r=>r.active!==false),bal=c.balance||0;
-  if(!l.length){B.innerHTML=`<div class="empty"><p>Belum ada hadiah.</p></div>`;return;}
-  B.innerHTML=`<div class="sec">Hadiah yang Bisa Ditukar</div><div class="reward-grid">${l.map(r=>{const p=state.redemptions.find(x=>x.childId===c.id&&x.rewardId===r.id&&x.status==='pending');return `<div class="reward-card"><div style="font-size:48px">${r.icon||'🎁'}</div><div class="reward-name">${esc(r.name)}</div><div class="pts" style="font-size:16px;margin:4px 0">⭐ ${nf(r.cost)}</div>${p?`<span class="badge b-pend">⏳ Menunggu</span>`:bal>=r.cost?`<button class="btn btn-primary btn-sm" style="width:100%" data-action="redeem-reward" data-id="${r.id}">Tukar</button>`:`<div class="sub">Kurang ${nf(r.cost-bal)} poin</div>`}</div>`;}).join('')}</div>`;
+  if(!l.length){B.innerHTML=missionCard(false)+`<div class="empty"><p>Belum ada hadiah.</p></div>`;return;}
+  B.innerHTML=goalCard(c,true)+missionCard(false)+`<div class="sec">Hadiah yang Bisa Ditukar</div><div class="reward-grid">${l.map(r=>{const p=state.redemptions.find(x=>x.childId===c.id&&x.rewardId===r.id&&x.status==='pending'),g=c.goalRewardId===r.id;return `<div class="reward-card ${g?'goal-on':''}"><div style="font-size:48px">${r.icon||'🎁'}</div><div class="reward-name">${esc(r.name)}</div><div class="pts" style="font-size:16px;margin:4px 0">⭐ ${nf(r.cost)}</div>${p?`<span class="badge b-pend">⏳ Menunggu</span>`:bal>=r.cost?`<button class="btn btn-primary btn-sm" style="width:100%" data-action="redeem-reward" data-id="${r.id}">Tukar</button>`:`<div class="sub">Kurang ${nf(r.cost-bal)} poin</div>`}
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:6px;font-size:12px;padding:6px" data-action="set-goal" data-id="${g?'':r.id}">${g?'🎯 Target • lepas':'🎯 Jadikan target'}</button></div>`;}).join('')}</div>`;
+}
+function badgesBlock(s){
+  const got=myBadges(s).length;
+  return `<div class="sec">🏅 Lencana (${got}/${BADGES.length})</div><div class="badge-grid">${BADGES.map(b=>{const on=b[3](s);return `<div class="bdg ${on?'':'off'}"><div>${b[0]}</div><b>${b[1]}</b><span>${b[2]}</span></div>`;}).join('')}</div>`;
 }
 const daysRow=(arr,w)=>`<div class="days7">${MON.map((dk,i)=>`<div class="${arr[i]?'on':''}${w.days[i]===todayStr()?'" style="outline:2px solid var(--pri)':''}">${DN[dk].slice(0,3)}<b>${arr[i]||'·'}</b></div>`).join('')}</div>`;
 function childPoints(c,B){
   const l=state.ledger.filter(x=>x.childId===c.id).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,30);
-  const w=weekRange(0),s=weekStats(c.id,w);
-  B.innerHTML=`<div class="balance-box"><div>Saldo Poinmu</div><div class="balance-num">⭐ ${c.balance||0}</div></div>
+  const w=weekRange(0),s=weekStats(c.id,w),st=childStats(c.id);
+  B.innerHTML=`<div class="balance-box"><div>Saldo Poinmu</div><div class="balance-num">⭐ ${nf(c.balance)}</div></div>
+  ${goalCard(c,true)}
+  <div class="card" style="display:flex;align-items:center;gap:12px"><div style="font-size:44px" class="${st.streak?'pulse':''}">${st.streak?'🔥':'🌱'}</div><div style="flex:1">${st.streak?`<b style="font-size:17px">${st.streak} hari berturut-turut!</b><div class="sub">${state.completions.some(x=>x.childId===c.id&&x.date===todayStr()&&x.status==='approved')?'Hari ini sudah aman. Hebat!':state.completions.some(x=>x.childId===c.id&&x.date===todayStr()&&x.status==='pending')?'Tugas hari ini menunggu persetujuan ⏳':'Selesaikan 1 tugas hari ini agar apinya tetap menyala.'}</div>`:`<b style="font-size:17px">Mulai streak-mu!</b><div class="sub">Selesaikan minimal 1 tugas setiap hari.</div>`}<div class="sub">Rekor terbaik: ${st.best} hari</div></div></div>
   <div class="card"><b>Minggu ini</b> <span class="sub">(${w.label})</span><div class="stat"><div><b>${s.approved}</b>tugas selesai</div><div><b style="color:var(--ok)">+${s.earn+s.bonus}</b>poin didapat</div><div><b>${s.net>=0?'+':''}${s.net}</b>total</div></div>${daysRow(s.perDay,w)}</div>
+  ${badgesBlock(st)}
   <div class="sec">Riwayat Poin</div>${l.length?l.map(x=>{const m=(x.delta||0)<0,d=x.createdAt?.toDate?x.createdAt.toDate().toLocaleDateString('id-ID',{day:'numeric',month:'short'}):'';return `<div class="card" style="padding:12px;display:flex;justify-content:space-between;align-items:center"><div><b>${LICON[x.type]||'⭐'} ${esc(x.note||'Poin')}</b><div class="sub">${d}${x.type==='bonus'?' • bonus dari orang tua':x.type==='penalty'?' • dikurangi orang tua':''}</div></div><b style="font-size:18px;color:var(${m?'--err':'--ok'})">${m?'':'+'}${x.delta}</b></div>`;}).join(''):`<div class="empty"><p>Belum ada riwayat.</p></div>`}`;
 }
 
@@ -430,7 +580,7 @@ function pApproval(B){
   const ts=state.completions.filter(c=>c.status==='pending').sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   const rs=state.redemptions.filter(r=>r.status==='pending');
   const ok=(a,id)=>`<div class="acts"><button class="ib ok" data-action="approve-${a}" data-id="${id}">✓</button><button class="ib no" data-action="reject-${a}" data-id="${id}">✕</button></div>`;
-  B.innerHTML=`<div class="sec">Tugas Menunggu (${ts.length})</div>`+(ts.length?ts.map(x=>{const c=child(x.childId),t=state.tasks.find(k=>k.id===x.taskId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.taskName)}<div class="sub">${esc(c?.name||'?')} • ${x.date} • +${t?.points??0} poin</div></div>${ok('task',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">🎉 Tidak ada tugas menunggu.</div>`)
+  B.innerHTML=`<div class="sec">Tugas Menunggu (${ts.length})</div>`+(ts.length>1?`<button class="btn btn-primary" data-action="approve-all">✓ Setujui Semua (${ts.length}) • +${nf(ts.reduce((a,x)=>a+(state.tasks.find(t=>t.id===x.taskId)?.points||0),0))} poin</button>`:'')+(ts.length?ts.map(x=>{const c=child(x.childId),t=state.tasks.find(k=>k.id===x.taskId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.taskName)}<div class="sub">${esc(c?.name||'?')} • ${x.date} • +${t?.points??0} poin</div></div>${ok('task',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">🎉 Tidak ada tugas menunggu.</div>`)
   +`<div class="sec">Tukar Hadiah (${rs.length})</div>`+(rs.length?rs.map(x=>{const c=child(x.childId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.rewardName)}<div class="sub">${esc(c?.name||'?')} • ${nf(x.cost)} poin</div></div>${ok('redemption',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">✨ Tidak ada permintaan tukar.</div>`);
 }
 function curItems(){
@@ -473,20 +623,20 @@ function copyModal(){
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Salin</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
 function pTasks(B){
-  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
+  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''}${toMin(t.time)!=null?` • 🕒 ${t.time}`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
 }
 function pRewards(B){
-  B.innerHTML=`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${nf(r.cost)} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
+  B.innerHTML=missionCard(true)+`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${nf(r.cost)} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
 }
 function pChildren(B){
-  B.innerHTML=`<div class="fid"><span class="sub" style="color:#ccc">ID Keluarga (untuk HP anak, tanpa PIN)</span><b data-action="copy-fid">${state.familyId}</b><span class="sub" style="color:#ccc">Ketuk untuk salin</span></div><button class="btn btn-primary" data-action="add-child">➕ Tambah Anak</button><div class="sec">Daftar Anak (${state.children.length})</div>`+state.children.map(c=>`<div class="row"><div class="row-icon" style="background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div class="row-body">${esc(c.name)}<div class="sub">⭐ ${c.balance||0} poin</div></div><div class="acts"><button class="ib sf" style="font-weight:900" data-action="adjust-points" data-id="${c.id}" title="Tambah/kurangi poin">±</button><button class="ib ok" data-action="edit-child" data-id="${c.id}">✎</button><button class="ib no" data-action="del-child" data-id="${c.id}">🗑</button></div></div>`).join('');
+  B.innerHTML=`<div class="fid"><span class="sub" style="color:#ccc">ID Keluarga (untuk HP anak, tanpa PIN)</span><b data-action="copy-fid">${state.familyId}</b><span class="sub" style="color:#ccc">Ketuk untuk salin</span></div><button class="btn btn-primary" data-action="add-child">➕ Tambah Anak</button><div class="sec">Daftar Anak (${state.children.length})</div>`+state.children.map(c=>`<div class="row"><div class="row-icon" style="background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div class="row-body">${esc(c.name)}<div class="sub">⭐ ${nf(c.balance)} poin${(k=>k.streak?` • 🔥 ${k.streak} hari`:'')(childStats(c.id))} • 🏅 ${myBadges(childStats(c.id)).length}${goalOf(c)?` • 🎯 ${esc(goalOf(c).name)} ${Math.min(100,Math.floor((c.balance||0)/goalOf(c).cost*100))}%`:''}</div></div><div class="acts"><button class="ib sf" style="font-weight:900" data-action="adjust-points" data-id="${c.id}" title="Tambah/kurangi poin">±</button><button class="ib ok" data-action="edit-child" data-id="${c.id}">✎</button><button class="ib no" data-action="del-child" data-id="${c.id}">🗑</button></div></div>`).join('');
 }
 function pRecap(B){
   const off=state.recapWeek,w=weekRange(off);
   if(!state.children.length){B.innerHTML=`<div class="empty"><p>Tambahkan anak dulu di tab "Anak".</p></div>`;return;}
   B.innerHTML=`<div class="wk"><button class="ib sf" data-action="recap-week" data-d="-1">◀</button><b>${off===0?'Minggu ini':off===-1?'Minggu lalu':`${-off} minggu lalu`}<div class="sub">${w.label}</div></b><button class="ib sf" data-action="recap-week" data-d="1" ${off>=0?'disabled style="opacity:.3"':''}>▶</button></div>`
   +state.children.map(c=>{const s=weekStats(c.id,w);return `<div class="card">
-    <div style="display:flex;align-items:center;gap:10px"><div class="child-avatar" style="width:44px;height:44px;font-size:28px;background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div style="flex:1"><b style="font-size:17px">${esc(c.name)}</b><div class="sub">Saldo sekarang ⭐ ${c.balance||0}</div></div><b style="font-size:20px;color:var(${s.net<0?'--err':'--ok'})">${s.net>=0?'+':''}${s.net}</b></div>
+    <div style="display:flex;align-items:center;gap:10px"><div class="child-avatar" style="width:44px;height:44px;font-size:28px;background:${c.color||'var(--soft)'}">${c.avatar||'🐶'}</div><div style="flex:1"><b style="font-size:17px">${esc(c.name)}</b><div class="sub">Saldo sekarang ⭐ ${nf(c.balance)}</div></div><b style="font-size:20px;color:var(${s.net<0?'--err':'--ok'})">${s.net>=0?'+':''}${s.net}</b></div>
     <div class="stat"><div><b>${s.approved}</b>tugas disetujui</div><div><b style="color:var(--ok)">+${s.earn+s.bonus}</b>poin masuk</div><div><b style="color:var(--err)">${s.redeem+s.penalty}</b>poin keluar</div></div>
     <div class="sub" style="font-weight:700">Tugas disetujui per hari</div>${daysRow(s.perDay,w)}
     ${s.top.length?`<div class="sub" style="font-weight:700;margin-top:8px">Paling sering</div>${s.top.map(([n,k])=>`<div class="mini"><span>${esc(n)}</span><b>${k}x</b></div>`).join('')}`:''}
@@ -536,6 +686,8 @@ function taskModal(id){
   <label>Poin</label><input name="points" type="number" min="0" max="100" required value="${t?.points??1}">
   <label>Boleh dikerjakan berapa kali sehari?</label><input name="maxPerDay" type="number" min="1" max="10" required value="${maxOf(t)}">
   <p class="sub">Isi 1 jika cukup sekali sehari. Contoh: "Minum air" bisa 8 kali, poin didapat tiap kali disetujui.</p>
+  <label>Jam muncul di "Hari Ini" (opsional)</label><input name="time" type="time" value="${t?.time||''}">
+  <p class="sub">Jika diisi, tugas tampil di jadwal Hari Ini anak pada jam tersebut lengkap dengan tombol Selesai. Kosongkan bila tidak terikat jam.</p>
   <label>Untuk</label><select name="forChild"><option value="all">Semua anak</option>${state.children.map(c=>`<option value="${c.id}" ${t?.forChild===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
   <label class="chk"><input type="checkbox" name="active" ${t?.active!==false?'checked':''}>Aktif</label>
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
@@ -555,6 +707,7 @@ function childModal(id){
   <label>Nama Anak</label><input name="name" required maxlength="20" value="${esc(c?.name||'')}">
   <label>Avatar</label>${grid(ANIMALS,c?.avatar||ANIMALS[0],'avatar')}
   <label>Warna</label><div class="color-grid">${COLORS.map(x=>`<button type="button" class="color-btn ${x===(c?.color||COLORS[0])?'selected':''}" style="background:${x}" data-pick="color" data-v="${x}"></button>`).join('')}</div><input type="hidden" name="color" value="${c?.color||COLORS[0]}">
+  ${c?`<label>🎯 Target tabungan</label><select name="goal"><option value="">— Tidak ada —</option>${state.rewards.filter(r=>r.active!==false).map(r=>`<option value="${r.id}" ${c.goalRewardId===r.id?'selected':''}>${r.icon||'🎁'} ${esc(r.name)} (${nf(r.cost)})</option>`).join('')}</select><p class="sub">Anak juga bisa memilih sendiri dari tab Hadiah.</p>`:''}
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
 
@@ -574,14 +727,26 @@ async function redeem(rid){
   await setDoc(doc(fcol('redemptions')),{childId:c.id,rewardId:rid,rewardName:r.name,cost:r.cost,status:'pending',createdAt:serverTimestamp()});
   toast('Permintaan dikirim!','success');
 }
+// tambahkan satu persetujuan ke batch; kembalikan poinnya
+function addApproval(b,x){
+  const pts=state.tasks.find(t=>t.id===x.taskId)?.points||0; // poin diambil dari data tugas, bukan dari anak
+  b.update(fdoc('completions',x.id),{status:'approved',points:pts,reviewedAt:serverTimestamp()});
+  if(pts>0){b.update(fdoc('children',x.childId),{balance:increment(pts)});b.set(doc(fcol('ledger')),{childId:x.childId,delta:pts,type:'earn',note:x.taskName,refId:x.id,createdAt:serverTimestamp()});}
+  return pts;
+}
 async function approveTask(id){
   const x=state.completions.find(k=>k.id===id);
   if(!x||x.status!=='pending')return;
-  const pts=state.tasks.find(t=>t.id===x.taskId)?.points||0; // poin diambil dari data tugas, bukan dari anak
-  const b=writeBatch(db);
-  b.update(fdoc('completions',id),{status:'approved',points:pts,reviewedAt:serverTimestamp()});
-  if(pts>0){b.update(fdoc('children',x.childId),{balance:increment(pts)});b.set(doc(fcol('ledger')),{childId:x.childId,delta:pts,type:'earn',note:x.taskName,refId:id,createdAt:serverTimestamp()});}
+  const b=writeBatch(db),pts=addApproval(b,x);
   await b.commit();toast('Disetujui! +'+pts+' poin','success');
+}
+async function approveAll(){
+  const ps=state.completions.filter(c=>c.status==='pending');
+  if(!ps.length)return;
+  if(!confirm(`Setujui semua ${ps.length} tugas yang menunggu?`))return;
+  let tot=0;
+  for(let i=0;i<ps.length;i+=100){const b=writeBatch(db);ps.slice(i,i+100).forEach(x=>tot+=addApproval(b,x));await b.commit();} // batas batch Firestore 500 operasi
+  toast(`✓ ${ps.length} tugas disetujui • +${nf(tot)} poin`,'success');
 }
 async function approveRedemption(id){
   const r=state.redemptions.find(k=>k.id===id);
@@ -624,6 +789,11 @@ document.body.addEventListener('click',async e=>{
       case 'complete-task':await completeTask(id);break;
       case 'redeem-reward':await redeem(id);break;
       case 'approve-task':await approveTask(id);break;
+      case 'approve-all':await approveAll();break;
+      case 'set-goal':await setGoal(state.childId,id);break;
+      case 'mission-edit':missionModal();break;
+      case 'mission-finish':await finishMission();break;
+      case 'mission-cancel':if(confirm('Batalkan misi ini? Poin anak tidak terpengaruh.')){await updateDoc(doc(db,'families',state.familyId),{mission:null});toast('Misi dibatalkan');}break;
       case 'reject-task':await reject('completions',id);break;
       case 'approve-redemption':await approveRedemption(id);break;
       case 'reject-redemption':await reject('redemptions',id);break;
@@ -670,7 +840,7 @@ document.body.addEventListener('submit',async e=>{
       await setDoc(fdoc('schedules',state.ed.childId),{days:cur,updatedAt:serverTimestamp()},{merge:true});closeModal();toast('Jadwal disalin','success');
     }
     else if(fid==='form-task'){
-      const d={name:v.name.trim(),icon:v.icon,points:parseInt(v.points,10)||0,maxPerDay:maxOf({maxPerDay:v.maxPerDay}),forChild:v.forChild||'all',active:!!v.active};
+      const d={name:v.name.trim(),icon:v.icon,points:parseInt(v.points,10)||0,maxPerDay:maxOf({maxPerDay:v.maxPerDay}),time:toMin(v.time)!=null?v.time:'',forChild:v.forChild||'all',active:!!v.active};
       if(eid)await updateDoc(fdoc('tasks',eid),d);else await setDoc(doc(fcol('tasks')),{...d,sortOrder:state.tasks.length});
       closeModal();toast('Tugas disimpan','success');
     }
@@ -681,8 +851,14 @@ document.body.addEventListener('submit',async e=>{
     }
     else if(fid==='form-child'){
       const d={name:v.name.trim(),avatar:v.avatar,color:v.color,active:true};
+      if(eid&&'goal' in v)d.goalRewardId=v.goal||null;
       if(eid)await updateDoc(fdoc('children',eid),d);else await setDoc(doc(fcol('children')),{...d,sortOrder:state.children.length,balance:0});
       closeModal();toast('Data anak disimpan','success');
+    }
+    else if(fid==='form-mission'){
+      const old=state.family?.mission,tg=Math.min(999999,Math.max(1,parseInt(v.target,10)||1));
+      await updateDoc(doc(db,'families',state.familyId),{mission:{name:v.name.trim(),icon:v.icon,target:tg,start:old?.start||Math.floor(Date.now()/1000)}});
+      closeModal();toast(old?'Misi diperbarui':'🤝 Misi keluarga dimulai!','success');
     }
     else if(fid==='form-adjust')await adjustPoints(eid,v.kind,v.amount,(v.note||'').trim());
     else if(fid==='form-fname'){await updateDoc(doc(db,'families',state.familyId),{name:v.name.trim()});closeModal();toast('Nama diubah','success');}
