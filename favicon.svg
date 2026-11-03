@@ -6,17 +6,27 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="116" fill="url(#bg)"/>
-  <!-- jari-jari tapak -->
-  <g fill="#FFF8EC">
-    <ellipse cx="136" cy="236" rx="40" ry="50" transform="rotate(-24 136 236)"/>
-    <ellipse cx="206" cy="150" rx="42" ry="54" transform="rotate(-8 206 150)"/>
-    <ellipse cx="306" cy="150" rx="42" ry="54" transform="rotate(8 306 150)"/>
-    <ellipse cx="376" cy="236" rx="40" ry="50" transform="rotate(24 376 236)"/>
-    <!-- bantalan tapak -->
-    <path d="M256 250c-62 0-124 64-124 118 0 40 30 62 66 62 26 0 40-12 58-12s32 12 58 12c36 0 66-22 66-62 0-54-62-118-124-118z"/>
+  <!-- kepala kucing + telinga -->
+  <path d="M104 228 L120 88 Q124 66 144 80 L214 134 Q256 124 298 134 L368 80 Q388 66 392 88 L408 228 Q424 270 418 312 Q404 420 256 428 Q108 420 94 312 Q88 270 104 228Z" fill="#FFF8EC"/>
+  <!-- telinga dalam -->
+  <path d="M140 112 L196 152 Q170 166 154 188Z" fill="#F4B9A8"/>
+  <path d="M372 112 L316 152 Q342 166 358 188Z" fill="#F4B9A8"/>
+  <!-- mata tersenyum -->
+  <g fill="none" stroke="#3E4A4F" stroke-width="18" stroke-linecap="round">
+    <path d="M168 290 Q194 262 220 290"/>
+    <path d="M292 290 Q318 262 344 290"/>
   </g>
-  <!-- centang tugas -->
-  <path d="M206 350l34 34 66-70" fill="none" stroke="#4E9381" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- pipi -->
+  <ellipse cx="160" cy="336" rx="24" ry="14" fill="#F7C7B8"/>
+  <ellipse cx="352" cy="336" rx="24" ry="14" fill="#F7C7B8"/>
+  <!-- hidung + mulut -->
+  <path d="M240 318 h32 q6 0 2 6 l-14 14 q-4 4 -8 0 l-14 -14 q-4 -6 2 -6z" fill="#E98E7C"/>
+  <path d="M256 340 v14 q-12 18 -30 8 M256 354 q12 18 30 8" fill="none" stroke="#3E4A4F" stroke-width="9" stroke-linecap="round"/>
+  <!-- kumis -->
+  <g stroke="#3E4A4F" stroke-width="7" stroke-linecap="round" opacity=".55">
+    <path d="M128 318 L64 306"/><path d="M128 340 L66 350"/>
+    <path d="M384 318 L448 306"/><path d="M384 340 L446 350"/>
+  </g>
   <!-- bintang poin -->
-  <path d="M424 52l14 30 33 4-24 23 6 33-29-16-29 16 6-33-24-23 33-4z" fill="#F6C85F"/>
+  <path d="M424 40l14 30 33 4-24 23 6 33-29-16-29 16 6-33-24-23 33-4z" fill="#F6C85F"/>
 </svg>
