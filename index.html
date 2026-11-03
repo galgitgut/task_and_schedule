@@ -9,6 +9,10 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Malika & Kean">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--pri:#4E9381;--soft:#E6F2EE;--peach:#F0A88F;--mint:#BFE0D6;--sky:#9DC3E6;--text:#3E4A4F;--tl:#7C8A8F;--w:#fff;--ok:#5BA67A;--warn:#E8B866;--err:#D98080;--line:#DCE5E2;
@@ -185,6 +189,11 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 <div id="modal-root" class="modal-root" data-action="close-modal-bg"><div class="modal-content" id="modal-content"></div></div>
 
 <script type="module">
+/* ===== PWA: bisa di-install ===== */
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e)));
+let installEvt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(typeof rerender==='function')rerender();});
+addEventListener('appinstalled',()=>{installEvt=null;});
 const firebaseConfig = {
   apiKey: "AIzaSyAWVFJtJ_k5Ov-Awdg3vUNZAWRUYrB8Jow",
   authDomain: "my-task-and-schedule.firebaseapp.com",
@@ -675,7 +684,7 @@ async function adjustPoints(cid,kind,amount,note){
 }
 function pMore(B){
   const t=getTheme();
-  B.innerHTML=`<div class="card"><b>🎨 Tampilan</b><div class="seg" style="margin-top:8px">${[['light','☀️ Terang'],['dark','🌙 Gelap'],['auto','📱 Ikuti HP']].map(([k,n])=>`<button class="tab ${t===k?'active':''}" data-action="set-theme" data-v="${k}">${n}</button>`).join('')}</div><p class="sub" style="margin-top:6px">Berlaku di HP ini saja.</p></div>
+  B.innerHTML=(installEvt?`<button class="btn btn-primary" data-action="install-app">📲 Install aplikasi di HP ini</button>`:'')+`<div class="card"><b>🎨 Tampilan</b><div class="seg" style="margin-top:8px">${[['light','☀️ Terang'],['dark','🌙 Gelap'],['auto','📱 Ikuti HP']].map(([k,n])=>`<button class="tab ${t===k?'active':''}" data-action="set-theme" data-v="${k}">${n}</button>`).join('')}</div><p class="sub" style="margin-top:6px">Berlaku di HP ini saja.</p></div>
   <div class="card t-pink"><b>${esc(state.family?.name||'Keluarga')}</b><div class="sub">ID: ${state.familyId}</div></div><button class="btn btn-secondary" data-action="change-family-name">✏️ Ganti Nama Keluarga</button><button class="btn btn-warn" data-action="change-pin">🔒 Ganti PIN Orang Tua</button><button class="btn btn-danger" data-action="reset-device">🚪 Keluar dari HP Ini</button>`;
 }
 
@@ -784,6 +793,7 @@ document.body.addEventListener('click',async e=>{
       case 'land-child':renderPick();showScreen('screen-pick-child');break;
       case 'pick-child':enterChild(id);break;
       case 'go-landing':goLanding();break;
+      case 'install-app':if(installEvt){installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;renderParent();if(r.outcome==='accepted')toast('Aplikasi di-install!','success');}break;
       case 'exit-app':exitAsk=false;$('#modal-root').classList.remove('active');history.back();setTimeout(()=>{try{window.close();}catch{}},150);setTimeout(()=>{if(!document.hidden){armBack();toast('Tutup aplikasi dari layar HP ya');}},600);break;
       case 'toggle-theme':setTheme(isDark()?'light':'dark');break;
       case 'set-theme':setTheme(el.dataset.v);break;

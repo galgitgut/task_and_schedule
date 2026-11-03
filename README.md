@@ -59,3 +59,8 @@ const firebaseConfig = {
 
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
+
+## Install sebagai aplikasi (PWA)
+- `manifest.webmanifest` + `sw.js` + `icon-maskable-512.png` membuat app bisa di-**Install** dari Chrome Android (tidak hanya "Buat pintasan"). Terbuka layar penuh tanpa bilah alamat.
+- `sw.js` memakai strategi jaringan-dulu: saat online selalu memuat versi terbaru dari GitHub, saat offline memakai salinan terakhir.
+- Mode orang tua → tab Lain → tombol "📲 Install aplikasi" muncul bila HP mendukung dan app belum ter-install.
