@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#66AE9B"/>
+      <stop offset="1" stop-color="#3D7C6B"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <!-- kepala kucing + telinga -->
+  <path d="M104 228 L120 88 Q124 66 144 80 L214 134 Q256 124 298 134 L368 80 Q388 66 392 88 L408 228 Q424 270 418 312 Q404 420 256 428 Q108 420 94 312 Q88 270 104 228Z" fill="#FFF8EC"/>
+  <!-- telinga dalam -->
+  <path d="M140 112 L196 152 Q170 166 154 188Z" fill="#F4B9A8"/>
+  <path d="M372 112 L316 152 Q342 166 358 188Z" fill="#F4B9A8"/>
+  <!-- mata tersenyum -->
+  <g fill="none" stroke="#3E4A4F" stroke-width="18" stroke-linecap="round">
+    <path d="M168 290 Q194 262 220 290"/>
+    <path d="M292 290 Q318 262 344 290"/>
+  </g>
+  <!-- pipi -->
+  <ellipse cx="160" cy="336" rx="24" ry="14" fill="#F7C7B8"/>
+  <ellipse cx="352" cy="336" rx="24" ry="14" fill="#F7C7B8"/>
+  <!-- hidung + mulut -->
+  <path d="M240 318 h32 q6 0 2 6 l-14 14 q-4 4 -8 0 l-14 -14 q-4 -6 2 -6z" fill="#E98E7C"/>
+  <path d="M256 340 v14 q-12 18 -30 8 M256 354 q12 18 30 8" fill="none" stroke="#3E4A4F" stroke-width="9" stroke-linecap="round"/>
+  <!-- kumis -->
+  <g stroke="#3E4A4F" stroke-width="7" stroke-linecap="round" opacity=".55">
+    <path d="M128 318 L64 306"/><path d="M128 340 L66 350"/>
+    <path d="M384 318 L448 306"/><path d="M384 340 L446 350"/>
+  </g>
+  <!-- bintang poin -->
+  <path d="M424 40l14 30 33 4-24 23 6 33-29-16-29 16 6-33-24-23 33-4z" fill="#F6C85F"/>
+</svg>

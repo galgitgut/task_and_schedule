@@ -56,3 +56,6 @@ const firebaseConfig = {
 - **Misi keluarga 🤝:** tab Hadiah (orang tua) → Buat Misi. Isinya target poin bersama untuk semua anak. Semua poin tugas dan bonus sejak misi dimulai ikut dihitung, **tanpa mengurangi saldo**. Setelah tercapai, orang tua menekan "Tandai Selesai".
 - Data baru disimpan sebagai field di dokumen yang sudah ada: `tasks.time`, `children.goalRewardId`, `families.mission`, dan `families.missionHistory`. Tidak ada koleksi baru.
 - **Catatan Rules:** jika Firestore Rules melarang HP anak mengubah dokumen `children`, anak tidak bisa memilih target sendiri. App akan menampilkan pesan agar orang tua yang memasangnya.
+
+## Ikon aplikasi
+- Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
