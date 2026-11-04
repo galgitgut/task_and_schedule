@@ -63,6 +63,10 @@ const firebaseConfig = {
 - Kartu kegiatan yang sudah lewat tetap redup, tetapi label tugasnya tetap jelas.
 - **Tab Jadwal (mingguan)** menampilkan tugas berjam sebagai baris tipis di tabel (ikon + "tugas • +poin"). Nomor kegiatan tidak bergeser.
 
+## Pembaruan v2.6 (Nov 2026)
+- **Jadwal orang tua menampilkan tugas berjam** sebagai baris berwarna (hanya tampilan, tanpa tombol edit/hapus), baik mode Permanen maupun Sekali saja. Jam dan poin tugas tetap diatur di tab Tugas.
+- **Tampilan PC/tablet:** di layar lebar (≥ 640px) app tampil sebagai kolom selebar 560px di tengah layar, lengkap dengan menu bawahnya. Tampilan di HP tidak berubah.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
