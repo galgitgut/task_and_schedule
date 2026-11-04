@@ -100,7 +100,22 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 .mini{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--line)}.mini:last-child{border:none}
 /* v2.4: HARI INI, TARGET, LENCANA, MISI */
 .tl{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:18px;margin:8px 0;box-shadow:0 3px 8px rgba(160,140,170,.1);border-left:6px solid transparent;transition:opacity .3s}
-.tl.past{opacity:.5}.tl.past b{text-decoration:line-through;text-decoration-thickness:2px}
+.tl.past>.tl-t,.tl.past .tl-b>b,.tl.past .tl-b>.sub,.tl.past>.badge,.tl.past>.sub{opacity:.5}.tl.past .tl-b>b{text-decoration:line-through;text-decoration-thickness:2px}
+/* TUGAS NYEMPIL DI JADWAL */
+.tchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tchip{display:inline-flex;align-items:center;gap:5px;padding:4px 6px 4px 9px;border-radius:14px;font-weight:800;font-size:12px;font-family:inherit;line-height:1.2;color:var(--text);background:var(--card);border:1.5px dashed var(--pri);cursor:pointer;max-width:100%}
+.tchip .nm{text-align:left}
+.tchip .pt{color:var(--pri);font-weight:900}.tchip .tm{color:var(--tl);font-weight:700;font-size:11px}
+.tchip .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--pri);display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.tchip.pend{border:1.5px solid transparent;background:var(--pdbg);color:var(--pdfg);cursor:default}.tchip.pend .ck{border:none}
+.tchip.done{border:1.5px solid transparent;background:var(--okbg);color:var(--okfg);cursor:default}.tchip.done .ck{border:none;background:var(--ok);color:#fff}
+.tstrip{display:flex;align-items:center;gap:8px;margin:2px 0 2px 22px;padding:6px 8px 6px 12px;border-left:3px dashed var(--pri);border-radius:0 14px 14px 0;font-size:13px}
+.tstrip .tm{min-width:38px;font-weight:800;font-size:12px;color:var(--tl)}.tstrip .ic{font-size:18px}
+.tstrip .nm{flex:1;min-width:0;font-weight:800}.tstrip .pt{color:var(--pri);font-weight:900;font-size:12px}
+.tstrip .ck{width:30px;height:30px;border-radius:50%;border:2px solid var(--pri);background:var(--card);color:var(--pri);font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.tstrip.pend{background:var(--pdbg)}.tstrip.pend .ck{border:none;background:none;cursor:default}
+.tstrip.done{opacity:.6}.tstrip.done .ck{border:none;background:var(--ok);color:#fff;cursor:default}
+.st tr.trow td{background:var(--soft);color:var(--tl);font-size:12px;padding:5px 6px}.st tr.trow b{color:var(--text);font-weight:800}
 .tl.now{border-left-color:var(--pri);background:var(--soft);box-shadow:0 4px 14px rgba(78,147,129,.25)}
 .tl-t{min-width:50px;text-align:center;font-weight:900;font-size:14px;color:var(--text)}.tl-t span{font-weight:700;font-size:11px;color:var(--tl)}
 .tl-b{flex:1;min-width:0;font-size:15px}
@@ -152,7 +167,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.4</p></div>
+  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.5</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -506,7 +521,14 @@ const getComps=(cid,tid,date)=>state.completions.filter(c=>c.childId===cid&&c.ta
 const maxOf=t=>Math.min(10,Math.max(1,parseInt(t?.maxPerDay,10)||1));
 const myTasks=cid=>state.tasks.filter(t=>t.active!==false&&(!t.forChild||t.forChild==='all'||t.forChild===cid));
 
-function schedTable(items,edit){
+function schedTable(items,edit,tasks){
+  if(tasks?.length){ // sisipkan baris tugas (tipis) sesuai jam
+    const rows=[...items.map(a=>({a,s:toMin(a.start)??9999})),...tasks.map(t=>({t,s:toMin(t.time)}))].sort((x,y)=>x.s-y.s||(x.t?1:-1));
+    let n=0;
+    return `<div style="overflow-x:auto"><table class="st"><thead><tr><th>No</th><th>Waktu</th><th>Kegiatan</th><th>Keterangan</th></tr></thead><tbody>${rows.map(r=>r.t
+      ?`<tr class="trow"><td>${r.t.icon||'⭐'}</td><td class="tm">${r.t.time}</td><td><b>${esc(r.t.name)}</b></td><td>tugas • +${r.t.points} poin</td></tr>`
+      :`<tr><td>${++n}</td><td class="tm">${r.a.start||'-'}${r.a.end?'<br>'+r.a.end:''}</td><td><b>${esc(r.a.title)}</b></td><td class="nt">${esc(r.a.notes)}</td></tr>`).join('')}</tbody></table></div>`;
+  }
   if(!items.length)return `<p class="sub" style="padding:8px">Belum ada jadwal.</p>`;
   return `<div style="overflow-x:auto"><table class="st"><thead><tr><th>No</th><th>Waktu</th><th>Kegiatan</th><th>Keterangan</th>${edit?'<th></th>':''}</tr></thead><tbody>${items.map((a,i)=>`<tr><td>${i+1}</td><td class="tm">${a.start||'-'}${a.end?'<br>'+a.end:''}</td><td><b>${esc(a.title)}</b></td><td class="nt">${esc(a.notes)}</td>${edit?`<td class="ac"><button class="ib ok" data-action="edit-item" data-id="${a.id}">✎</button><button class="ib no" data-action="del-item" data-id="${a.id}">🗑</button></td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
@@ -521,7 +543,7 @@ function renderChild(){
   $$('#child-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.childTab));
   const B=$('#child-body'),t=state.childTab;
   if(t==='today')childToday(c,B);
-  else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pri)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk))}`).join('');}
+  else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pri)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk),false,myTasks(c.id).filter(t=>toMin(t.time)!=null))}`).join('');}
   else if(t==='tasks')childTasks(c,B);
   else if(t==='rewards')childRewards(c,B);
   else childPoints(c,B);
@@ -535,6 +557,21 @@ function taskCard(c,t,d,withTime){
   const sk=streakOf(apDates(c.id,t.id));
   return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=2?` <span class="streak">🔥 ${sk} hari</span>`:''}</div>${prog}</div>${right}</div>`;
 }
+// status satu tugas hari ini untuk tampilan ringkas di jadwal
+function tState(c,t,d){
+  const xs=getComps(c.id,t.id,d),max=maxOf(t),ap=xs.filter(x=>x.status==='approved').length,pd=xs.length-ap,left=max-xs.length;
+  return {max,ap,pd,left,cls:left>0?'todo':pd?'pend':'done',cnt:max>1?` ${xs.length}/${max}`:''};
+}
+function taskChip(c,t,d){
+  const s=tState(c,t,d),ck=s.cls==='done'?'✓':s.cls==='pend'?'⏳':'';
+  const inner=`<span>${t.icon||'⭐'}</span><span class="nm">${esc(t.name)}</span>${s.cnt?`<span class="tm">${s.cnt}</span>`:''}${s.cls==='todo'&&s.pd?'<span class="tm">⏳</span>':''}${s.cls==='todo'?`<span class="pt">+${t.points}</span>`:''}<span class="ck">${ck}</span>`;
+  return s.cls==='todo'?`<button class="tchip todo" data-action="complete-task" data-id="${t.id}" title="Ketuk bila sudah selesai">${inner}</button>`:`<span class="tchip ${s.cls}">${inner}</span>`;
+}
+function taskStrip(c,t,d){
+  const s=tState(c,t,d);
+  const ck=s.cls==='todo'?`<button class="ck" data-action="complete-task" data-id="${t.id}" title="Selesai">✓</button>`:s.cls==='pend'?`<span class="ck">⏳</span>`:`<span class="ck">✓</span>`;
+  return `<div class="tstrip ${s.cls}"><span class="tm">${t.time||''}</span><span class="ic">${t.icon||'⭐'}</span><span class="nm">${esc(t.name)}${s.cnt?` <span class="sub">${s.cnt}</span>`:''}</span>${s.cls==='todo'?`<span class="pt">+${t.points}⭐</span>`:''}${ck}</div>`;
+}
 function childToday(c,B){
   const dk=todayKey(),d=todayStr(),now=nowMin();
   const sch=getSched(c.id,dk).map(a=>({k:'s',a,s:toMin(a.start)}));
@@ -542,14 +579,17 @@ function childToday(c,B){
   // akhir kegiatan: jam selesai, atau mulai kegiatan berikutnya, atau +60 menit
   sch.forEach(x=>{if(x.s==null)return;let e=toMin(x.a.end);if(e==null||e<=x.s){const nx=timed.find(y=>y.s>x.s);e=nx?nx.s:x.s+60;}x.e=e;x.past=e<=now;x.now=x.s<=now&&now<e;});
   const ts=myTasks(c.id),tTasks=ts.filter(t=>toMin(t.time)!=null).map(t=>({k:'t',t,s:toMin(t.time)})),loose=ts.filter(t=>toMin(t.time)==null);
-  const all=[...sch,...tTasks].sort((a,b)=>(a.s??9999)-(b.s??9999)||(a.k==='s'?-1:1));
+  // tugas berjam ditempel (chip) di kartu kegiatan yang berlangsung pada jam itu; bila tidak ada, tampil sebagai baris tipis
+  const free=[];
+  tTasks.forEach(x=>{const host=sch.find(y=>y.s!=null&&y.s<=x.s&&x.s<y.e);if(host)(host.tasks=host.tasks||[]).push(x.t);else free.push(x);});
+  const all=[...sch,...free].sort((a,b)=>(a.s??9999)-(b.s??9999)||(a.k==='s'?-1:1));
   const cur=sch.filter(x=>x.now),nxt=timed.find(x=>x.s>now);
   let box='';
   if(cur.length||nxt)box=`<div class="nowbox">${cur.map(x=>`<div class="sub">📍 Sekarang${x.a.end?` (sampai ${x.a.end})`:''}</div><b>${esc(x.a.title)}</b>`).join('<div style="height:6px"></div>')}
     ${nxt?`<div class="sub" style="margin-top:${cur.length?'10px':'0'}">⏰ <b style="font-size:15px;display:inline-block" class="${nxt.s-now<=10?'pulse':''}">${durTxt(nxt.s-now)} lagi</b> (${nxt.a.start})</div><div style="font-weight:800">${esc(nxt.a.title)}</div>`:''}</div>`;
   else if(timed.length)box=`<div class="nowbox"><b>🌙 Kegiatan hari ini sudah selesai.</b><div class="sub">Hebat! Saatnya istirahat.</div></div>`;
-  const row=x=>x.k==='t'?taskCard(c,x.t,d,true)
-    :`<div class="tl ${x.now?'now':x.past?'past':''}"><div class="tl-t">${x.a.start||'-'}${x.a.end?`<br><span>${x.a.end}</span>`:''}</div><div class="tl-b"><b>${esc(x.a.title)}</b>${x.a.notes?`<div class="sub" style="font-style:italic">${esc(x.a.notes)}</div>`:''}</div>${x.now?'<span class="badge b-ok">Sekarang</span>':x.past?'<span class="sub">✓</span>':''}</div>`;
+  const row=x=>x.k==='t'?taskStrip(c,x.t,d)
+    :`<div class="tl ${x.now?'now':x.past?'past':''}"><div class="tl-t">${x.a.start||'-'}${x.a.end?`<br><span>${x.a.end}</span>`:''}</div><div class="tl-b"><b>${esc(x.a.title)}</b>${x.a.notes?`<div class="sub" style="font-style:italic">${esc(x.a.notes)}</div>`:''}${x.tasks?`<div class="tchips">${x.tasks.map(t=>taskChip(c,t,d)).join('')}</div>`:''}</div>${x.now?'<span class="badge b-ok">Sekarang</span>':x.past?'<span class="sub">✓</span>':''}</div>`;
   B.innerHTML=box+`<div class="sec">Jadwal Hari Ini (${DN[dk]})</div>`+(all.length?all.map(row).join(''):`<p class="sub" style="padding:8px">Belum ada jadwal.</p>`)
     +(loose.length?`<div class="sec">Tugas Hari Ini — dapat poin!</div>${loose.map(t=>taskCard(c,t,d)).join('')}`:'');
 }
