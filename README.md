@@ -57,6 +57,12 @@ const firebaseConfig = {
 - Data baru disimpan sebagai field di dokumen yang sudah ada: `tasks.time`, `children.goalRewardId`, `families.mission`, dan `families.missionHistory`. Tidak ada koleksi baru.
 - **Catatan Rules:** jika Firestore Rules melarang HP anak mengubah dokumen `children`, anak tidak bisa memilih target sendiri. App akan menampilkan pesan agar orang tua yang memasangnya.
 
+## Pembaruan v2.5 (Nov 2026)
+- **Tugas berjam menempel di jadwal:** di Hari Ini, tugas yang punya jam tampil sebagai label kecil di dalam kartu kegiatan yang berlangsung pada jam itu (misalnya "Rapikan tempat tidur" 06:10 menempel di "Mandi & sarapan" 06:00–06:45). Ketuk label untuk menandai selesai. Garis putus-putus = belum, kuning ⏳ = menunggu persetujuan, hijau ✓ = disetujui.
+- Tugas yang jamnya tidak jatuh di kegiatan mana pun tampil sebagai baris tipis di antara kegiatan.
+- Kartu kegiatan yang sudah lewat tetap redup, tetapi label tugasnya tetap jelas.
+- **Tab Jadwal (mingguan)** menampilkan tugas berjam sebagai baris tipis di tabel (ikon + "tugas • +poin"). Nomor kegiatan tidak bergeser.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
