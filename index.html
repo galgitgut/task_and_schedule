@@ -88,6 +88,8 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 .two{display:flex;gap:10px}.two>div{flex:1}
 .chk{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--text)}.chk input{width:auto;margin:0}
 .theme-fab{position:fixed;top:14px;right:14px;z-index:20}
+/* PIN: titik-titik tanpa kolom "password", agar tidak dianggap login oleh pengelola sandi Google */
+.pin{-webkit-text-security:disc;text-security:disc;letter-spacing:4px}
 /* PC / tablet: tampil seperti HP di tengah layar */
 @media (min-width:640px){
   .screen{max-width:560px;margin:0 auto}
@@ -152,11 +154,11 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-create" class="screen">
   <h2>🏠 Buat Keluarga Baru</h2>
-  <form id="form-create">
-    <label>Nama Keluarga</label><input id="c-fam" required maxlength="40" placeholder="Keluarga Ceria">
-    <label>Nama Kamu</label><input id="c-name" required maxlength="20" placeholder="Ayah / Ibu">
-    <label>PIN Orang Tua (4-6 angka)</label><input id="c-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6">
-    <label>Ulangi PIN</label><input id="c-pin2" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6">
+  <form id="form-create" autocomplete="off">
+    <label>Nama Keluarga</label><input id="c-fam" autocomplete="off" required maxlength="40" placeholder="Keluarga Ceria">
+    <label>Nama Kamu</label><input id="c-name" autocomplete="off" required maxlength="20" placeholder="Ayah / Ibu">
+    <label>PIN Orang Tua (4-6 angka)</label><input id="c-pin" type="text" class="pin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6">
+    <label>Ulangi PIN</label><input id="c-pin2" type="text" class="pin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6">
     <button type="submit" class="btn btn-primary" style="margin-top:16px">Buat Keluarga</button>
     <button type="button" class="btn btn-ghost" data-action="back">Kembali</button>
   </form>
@@ -165,7 +167,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 <div id="screen-join" class="screen">
   <h2>🔗 Gabung Keluarga</h2>
   <p class="sub">Minta ID keluarga dari orang tua. Anak tidak perlu PIN.</p>
-  <form id="form-join">
+  <form id="form-join" autocomplete="off">
     <label>ID Keluarga</label><input id="j-fid" required maxlength="20" placeholder="FAM-XXXXXXXX" style="text-transform:uppercase">
     <button type="submit" class="btn btn-primary" style="margin-top:16px">Lanjut</button>
     <button type="button" class="btn btn-ghost" data-action="back">Kembali</button>
@@ -174,7 +176,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.6</p></div>
+  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.7</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -407,7 +409,7 @@ function missionCard(parent){
 }
 function missionModal(){
   const m=state.family?.mission;
-  openModal(`<h3>${m?'Ubah':'Buat'} Misi Keluarga</h3><form id="form-mission">
+  openModal(`<h3>${m?'Ubah':'Buat'} Misi Keluarga</h3><form id="form-mission" autocomplete="off">
   <label>Nama Misi</label><input name="name" required maxlength="50" value="${esc(m?.name||'')}" placeholder="Piknik ke pantai">
   <label>Ikon</label>${grid(MICONS,m?.icon||MICONS[0],'icon')}
   <label>Target poin bersama</label><input name="target" type="number" min="1" max="999999" required inputmode="numeric" value="${m?.target??200}">
@@ -671,7 +673,7 @@ async function saveItems(items){
 function itemModal(id){
   const a=id?curItems().find(x=>x.id===id):null;
   openModal(`<h3>${a?'Edit':'Tambah'} Kegiatan</h3><p class="sub">${state.ed.mode==='perm'?'🔁 Berlaku permanen tiap '+DN[state.ed.day]:'📌 Hanya untuk '+weekDate(state.ed.day)}</p>
-  <form id="form-item" data-id="${id||''}">
+  <form id="form-item" autocomplete="off" data-id="${id||''}">
     <div class="two"><div><label>Mulai</label><input type="time" name="start" value="${a?.start||''}"></div><div><label>Selesai</label><input type="time" name="end" value="${a?.end||''}"></div></div>
     <label>Kegiatan</label><input name="title" required maxlength="80" value="${esc(a?.title||'')}" placeholder="Sekolah / Mengaji / Les">
     <label>Keterangan (opsional)</label><input name="notes" maxlength="100" value="${esc(a?.notes||'')}" placeholder="Bawa buku Iqro">
@@ -679,7 +681,7 @@ function itemModal(id){
 }
 function copyModal(){
   openModal(`<h3>Salin jadwal ${DN[state.ed.day]}</h3><p class="sub">Ke hari mana? (menimpa jadwal permanen hari itu)</p>
-  <form id="form-copy">${MON.filter(d=>d!==state.ed.day).map(d=>`<label class="chk"><input type="checkbox" name="d" value="${d}">${DN[d]}</label>`).join('')}
+  <form id="form-copy" autocomplete="off">${MON.filter(d=>d!==state.ed.day).map(d=>`<label class="chk"><input type="checkbox" name="d" value="${d}">${DN[d]}</label>`).join('')}
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Salin</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
 function pTasks(B){
@@ -709,7 +711,7 @@ function adjustModal(cid){
   const c=child(cid);if(!c)return;
   const hist=state.ledger.filter(x=>x.childId===cid&&(x.type==='bonus'||x.type==='penalty')).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,5);
   openModal(`<h3>± Poin ${esc(c.name)}</h3><p class="sub">Saldo sekarang: ⭐ <b>${c.balance||0}</b></p>
-  <form id="form-adjust" data-id="${cid}">
+  <form id="form-adjust" autocomplete="off" data-id="${cid}">
     <div class="seg" style="margin-top:10px"><button type="button" class="tab active" data-pick="kind" data-v="bonus">🎉 Bonus<br><span style="font-weight:600">tambah poin</span></button><button type="button" class="tab" data-pick="kind" data-v="penalty">⚠️ Kurangi<br><span style="font-weight:600">potong poin</span></button></div>
     <input type="hidden" name="kind" value="bonus">
     <label>Jumlah poin</label><input name="amount" type="number" min="1" max="999" required inputmode="numeric" placeholder="5">
@@ -740,7 +742,7 @@ function pMore(B){
 const grid=(list,sel,key)=>`<div class="avatar-grid">${list.map(i=>`<button type="button" class="avatar-btn ${i===sel?'selected':''}" data-pick="${key}" data-v="${i}">${i}</button>`).join('')}</div><input type="hidden" name="${key}" value="${sel}">`;
 function taskModal(id){
   const t=id?state.tasks.find(x=>x.id===id):null;
-  openModal(`<h3>${t?'Edit':'Tambah'} Tugas</h3><form id="form-task" data-id="${id||''}">
+  openModal(`<h3>${t?'Edit':'Tambah'} Tugas</h3><form id="form-task" autocomplete="off" data-id="${id||''}">
   <label>Nama Tugas</label><input name="name" required maxlength="60" value="${esc(t?.name||'')}">
   <label>Ikon</label>${grid(TICONS,t?.icon||TICONS[0],'icon')}
   <label>Poin</label><input name="points" type="number" min="0" max="100" required value="${t?.points??1}">
@@ -754,7 +756,7 @@ function taskModal(id){
 }
 function rewardModal(id){
   const r=id?state.rewards.find(x=>x.id===id):null;
-  openModal(`<h3>${r?'Edit':'Tambah'} Hadiah</h3><form id="form-reward" data-id="${id||''}">
+  openModal(`<h3>${r?'Edit':'Tambah'} Hadiah</h3><form id="form-reward" autocomplete="off" data-id="${id||''}">
   <label>Nama Hadiah</label><input name="name" required maxlength="60" value="${esc(r?.name||'')}">
   <label>Ikon</label>${grid(RICONS,r?.icon||RICONS[0],'icon')}
   <label>Harga (poin)</label><input name="cost" type="number" min="1" max="999999" required inputmode="numeric" value="${r?.cost??10}"><p class="sub">Maksimal 999.999 poin.</p>
@@ -763,7 +765,7 @@ function rewardModal(id){
 }
 function childModal(id){
   const c=id?child(id):null;
-  openModal(`<h3>${c?'Edit':'Tambah'} Anak</h3><form id="form-child" data-id="${id||''}">
+  openModal(`<h3>${c?'Edit':'Tambah'} Anak</h3><form id="form-child" autocomplete="off" data-id="${id||''}">
   <label>Nama Anak</label><input name="name" required maxlength="20" value="${esc(c?.name||'')}">
   <label>Avatar</label>${grid(ANIMALS,c?.avatar||ANIMALS[0],'avatar')}
   <label>Warna</label><div class="color-grid">${COLORS.map(x=>`<button type="button" class="color-btn ${x===(c?.color||COLORS[0])?'selected':''}" style="background:${x}" data-pick="color" data-v="${x}"></button>`).join('')}</div><input type="hidden" name="color" value="${c?.color||COLORS[0]}">
@@ -837,7 +839,7 @@ document.body.addEventListener('click',async e=>{
       case 'close-modal':closeModal();break;
       case 'child-tab':state.childTab=el.dataset.tab;renderChild();break;
       case 'parent-tab':state.parentTab=el.dataset.tab;renderParent();break;
-      case 'land-parent':openModal(`<h3>🔒 PIN Orang Tua</h3><form id="form-plogin"><input name="pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6" placeholder="••••" autofocus><button type="submit" class="btn btn-primary">Masuk</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
+      case 'land-parent':openModal(`<h3>🔒 PIN Orang Tua</h3><form id="form-plogin" autocomplete="off"><input name="pin" type="text" class="pin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore inputmode="numeric" pattern="[0-9]{4,6}" required maxlength="6" placeholder="••••" autofocus><button type="submit" class="btn btn-primary">Masuk</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
       case 'land-child':renderPick();showScreen('screen-pick-child');break;
       case 'pick-child':enterChild(id);break;
       case 'go-landing':goLanding();break;
@@ -876,8 +878,8 @@ document.body.addEventListener('click',async e=>{
       case 'edit-child':childModal(id);break;
       case 'del-child':await del('children',id);break;
       case 'copy-fid':try{await navigator.clipboard.writeText(state.familyId);toast('ID disalin!','success');}catch{toast('Gagal salin','error');}break;
-      case 'change-family-name':openModal(`<h3>Ganti Nama Keluarga</h3><form id="form-fname"><input name="name" required maxlength="40" value="${esc(state.family?.name||'')}"><button type="submit" class="btn btn-primary">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
-      case 'change-pin':openModal(`<h3>Ganti PIN</h3><form id="form-pin"><label>PIN Lama</label><input name="old" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required><label>PIN Baru</label><input name="new" type="password" inputmode="numeric" pattern="[0-9]{4,6}" required><button type="submit" class="btn btn-primary" style="margin-top:12px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
+      case 'change-family-name':openModal(`<h3>Ganti Nama Keluarga</h3><form id="form-fname" autocomplete="off"><input name="name" required maxlength="40" value="${esc(state.family?.name||'')}"><button type="submit" class="btn btn-primary">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
+      case 'change-pin':openModal(`<h3>Ganti PIN</h3><form id="form-pin" autocomplete="off"><label>PIN Lama</label><input name="old" type="text" class="pin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore inputmode="numeric" pattern="[0-9]{4,6}" required><label>PIN Baru</label><input name="new" type="text" class="pin" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore inputmode="numeric" pattern="[0-9]{4,6}" required><button type="submit" class="btn btn-primary" style="margin-top:12px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);break;
       case 'reset-device':if(confirm('Keluar dari keluarga di HP ini? Data di cloud tidak hilang.')){localStorage.removeItem('animalRoutinePairing');location.reload();}break;
     }
   }catch(err){console.error(err);toast(err.message||'Terjadi kesalahan','error');}
