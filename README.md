@@ -91,6 +91,11 @@ const firebaseConfig = {
   - Jadwal hari ini diubah orang tua: daftar kegiatan dengan tanda BARU / DIUBAH / DIHAPUS.
 - Waktu yang sudah lewat saat app dibuka (atau saat kembali dari latar belakang) tidak dimunculkan. Pengingat tetap berjalan untuk anak terakhir di HP itu walau app kembali ke halaman awal karena diam; tidak muncul di mode orang tua. Pengecekan setiap 20 detik.
 
+## Pembaruan v2.11 (Nov 2026)
+- **Hari aktif per tugas:** di formulir tugas pilih hari (Sen–Min) atau pintasan Setiap hari / Senin–Jumat / Sabtu–Minggu. Disimpan di `tasks.days` (kosong = setiap hari).
+- Tugas hanya muncul di Hari Ini, tab Tugas, jadwal (anak & orang tua, sesuai hari yang dilihat), dan pengingat pada hari aktifnya. Daftar tugas orang tua menampilkan label 📅 hari.
+- **Streak melompati hari libur tugas:** tugas Senin–Jumat tidak putus streaknya karena Sabtu–Minggu. Pop-up streak harian menampilkan "😴 libur hari ini, streak aman".
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 

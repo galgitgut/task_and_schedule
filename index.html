@@ -88,6 +88,10 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 .two{display:flex;gap:10px}.two>div{flex:1}
 .chk{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--text)}.chk input{width:auto;margin:0}
 .theme-fab{position:fixed;top:14px;right:14px;z-index:20}
+/* HARI AKTIF TUGAS */
+.dchips{display:flex;gap:4px;margin:6px 0}.dchip{flex:1;padding:9px 0;border-radius:12px;border:2px solid var(--line);background:var(--card);font:800 12px inherit;font-family:inherit;color:var(--tl);cursor:pointer}
+.dchip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.dpre{display:flex;gap:6px;flex-wrap:wrap}.dpre button{padding:6px 10px;border-radius:12px;border:1.5px dashed var(--pri);background:none;color:var(--pri);font:800 12px inherit;font-family:inherit;cursor:pointer}
 /* PENGINGAT DI DALAM APP */
 .rem-ic{font-size:60px;line-height:1.1}
 .chg{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;font-size:14px;margin:4px 0;background:var(--chip)}
@@ -211,7 +215,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.10</p></div>
+  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.11</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -383,9 +387,17 @@ function cleanDates(cid,tid){
   const bad=new Set(xs.filter(hasCut).map(x=>x.date));
   return new Set(xs.map(x=>x.date).filter(d=>!bad.has(d)));
 }
-const taskStreak=(cid,tid)=>streakOf(cleanDates(cid,tid));
+// hari aktif sebelumnya untuk tugas t (melompati hari yang tugasnya libur)
+function prevOn(t,d){let k=addDays(d,-1);for(let i=0;i<7&&!taskOn(t,dkOf(k));i++)k=addDays(k,-1);return k;}
+// streak tugas: hari yang tugasnya libur tidak memutus streak
+function taskStreak(cid,tid){
+  const t=state.tasks.find(k=>k.id===tid),ds=cleanDates(cid,tid),today=todayStr();
+  let d=ds.has(today)?today:taskOn(t,dkOf(today))?prevOn(t,today):prevOn(t,addDays(today,1)),n=0;
+  while(ds.has(d)){n++;d=prevOn(t,d);}
+  return n;
+}
 // jumlah hari bersih berturut-turut yang berakhir tepat sehari sebelum tanggal d
-function streakBefore(cid,tid,d){const ds=cleanDates(cid,tid);let k=addDays(d,-1),n=0;while(ds.has(k)){n++;k=addDays(k,-1);}return n;}
+function streakBefore(cid,tid,d){const t=state.tasks.find(k=>k.id===tid),ds=cleanDates(cid,tid);let k=prevOn(t,d),n=0;while(ds.has(k)){n++;k=prevOn(t,k);}return n;}
 // apakah pengajuan x berhak bonus streak +1 (dihitung saat verifikasi orang tua)
 function streakBonusFor(x){
   const prev=streakBefore(x.childId,x.taskId,x.date),n=prev+1;
@@ -587,7 +599,19 @@ const hasOv=(cid,dk)=>!!state.overrides[`${weekDate(dk)}_${cid}`];
 // semua kiriman (pending/approved) satu tugas pada tanggal tsb; yang ditolak tidak dihitung
 const getComps=(cid,tid,date)=>state.completions.filter(c=>c.childId===cid&&c.taskId===tid&&c.date===date&&c.status!=='rejected');
 const maxOf=t=>Math.min(10,Math.max(1,parseInt(t?.maxPerDay,10)||1));
-const myTasks=cid=>state.tasks.filter(t=>t.active!==false&&(!t.forChild||t.forChild==='all'||t.forChild===cid));
+// hari aktif tugas: t.days = ['mon',...]; kosong/tidak ada = setiap hari
+const dkOf=ds=>{const [y,m,d]=ds.split('-').map(Number);return DK[new Date(y,m-1,d).getDay()];};
+const taskOn=(t,dk)=>!t?.days?.length||t.days.includes(dk);
+const WEEKDAYS=['mon','tue','wed','thu','fri'],WEEKEND=['sat','sun'];
+function daysLabel(days){
+  if(!days?.length||days.length===7)return 'Setiap hari';
+  const set=[...days].sort((a,b)=>MON.indexOf(a)-MON.indexOf(b)).join();
+  if(set===WEEKDAYS.join())return 'Senin–Jumat';
+  if(set===WEEKEND.join())return 'Sabtu–Minggu';
+  return MON.filter(k=>days.includes(k)).map(k=>DN[k].slice(0,3)).join(', ');
+}
+// dk: hari yang dilihat (default hari ini); null = semua hari
+const myTasks=(cid,dk=todayKey())=>state.tasks.filter(t=>t.active!==false&&(!t.forChild||t.forChild==='all'||t.forChild===cid)&&(dk===null||taskOn(t,dk)));
 
 function schedTable(items,edit,tasks){
   if(tasks?.length){ // sisipkan baris tugas (tipis) sesuai jam
@@ -615,7 +639,7 @@ function renderChild(){
   else if(t==='week'){
     const dk=state.weekDay||todayKey();
     B.innerHTML=`<div class="daysel"><label for="week-day">📅 Lihat hari</label><select id="week-day" data-change="week-day">${MON.map(k=>`<option value="${k}" ${k===dk?'selected':''}>${DN[k]}${k===todayKey()?' (hari ini)':''}${hasOv(c.id,k)?' • khusus':''}</option>`).join('')}</select></div>
-    <div class="sec" style="color:var(--pri)">Jadwal ${DN[dk]}${dk===todayKey()?' — hari ini':''}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk),false,myTasks(c.id).filter(t=>toMin(t.time)!=null))}
+    <div class="sec" style="color:var(--pri)">Jadwal ${DN[dk]}${dk===todayKey()?' — hari ini':''}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk),false,myTasks(c.id,dk).filter(t=>toMin(t.time)!=null))}
     ${dk!==todayKey()?`<button class="btn btn-ghost" style="margin-top:10px" data-action="week-today">↩ Kembali ke hari ini</button>`:''}`;}
   else if(t==='news')childNewsPage(c,B);
   else if(t==='tasks')childTasks(c,B);
@@ -726,17 +750,17 @@ function streakPop(c,evs){
 }
 const CHEERS=['Sedikit demi sedikit, lama-lama jadi bukit! ⛰️','Kamu hebat! Terus semangat ya! 💪','Konsisten itu kekuatan super! 🦸','Satu hari lagi, satu langkah lebih hebat! 🚀','Ayah & Ibu bangga sama kamu! ❤️','Jangan putus ya, kamu pasti bisa! 🌟'];
 function streakInfo(c){
-  const ts=myTasks(c.id),today=todayStr();
-  return ts.map(t=>{const n=taskStreak(c.id,t.id),ds=cleanDates(c.id,t.id);return {t,n,done:ds.has(today),pend:getComps(c.id,t.id,today).some(x=>x.status==='pending')};}).filter(o=>o.n>0).sort((a,b)=>b.n-a.n);
+  const ts=myTasks(c.id,null),today=todayStr();
+  return ts.map(t=>{const n=taskStreak(c.id,t.id),ds=cleanDates(c.id,t.id);return {t,n,off:!taskOn(t,todayKey()),done:ds.has(today),pend:getComps(c.id,t.id,today).some(x=>x.status==='pending')};}).filter(o=>o.n>0).sort((a,b)=>b.n-a.n);
 }
 function streakBody(c){
   const all=streakInfo(c),hot=all.filter(o=>o.n>=STREAK_MIN),near=all.filter(o=>o.n<STREAK_MIN);
-  const st=o=>o.done?'✅ hari ini sudah aman':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini';
+  const st=o=>o.off?`😴 libur hari ini (${daysLabel(o.t.days)}), streak aman`:o.done?'✅ hari ini sudah aman':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini';
   return `${hot.length?`<div class="sec">🔥 Streak +1/hari (${hot.length})</div>${hot.map(o=>`<div class="sk-row"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div></div><div class="n">🔥 ${o.n} hari</div></div>`).join('')}`
     :`<p class="sub" style="text-align:center;margin-top:6px">Belum ada tugas dengan streak ${STREAK_MIN} hari. Kerjakan tugas yang sama ${STREAK_MIN} hari berturut-turut untuk dapat bonus <b>+1 poin setiap hari</b>!</p>`}
   ${near.length?`<div class="sec">🌱 Menuju streak</div>${near.slice(0,6).map(o=>`<div class="sk-row near"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div><div class="sk-bar"><i style="width:${o.n/STREAK_MIN*100}%"></i></div></div><div class="n">${o.n}/${STREAK_MIN}<br>${STREAK_MIN-o.n} hari lagi</div></div>`).join('')}`:''}
   <div class="cheer">${CHEERS[new Date().getDate()%CHEERS.length]}</div>
-  <div class="warnbox">⚠️ <b>Streak akan HILANG kalau:</b><br>1. Lupa mengerjakan tugasnya, walau cuma sehari.<br>2. Tugasnya kena pengurangan nilai/hukuman dari Ayah atau Ibu.<br>Kerjakan setiap hari dengan baik dan rapi ya!</div>`;
+  <div class="warnbox">⚠️ <b>Streak akan HILANG kalau:</b><br>1. Lupa mengerjakan tugasnya, walau cuma sehari (hari libur tugas tidak dihitung).<br>2. Tugasnya kena pengurangan nilai/hukuman dari Ayah atau Ibu.<br>Kerjakan setiap hari dengan baik dan rapi ya!</div>`;
 }
 function dailyStreakPop(c){
   openModal(`<div style="text-align:center"><div style="font-size:48px" class="pulse">🔥</div><h3>Streak Tugasmu Hari Ini</h3><p class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</p></div>
@@ -816,7 +840,7 @@ function pSchedule(B){
     ${mode==='date'?(ov?`<p class="sub" style="margin-top:8px">Hari ini punya jadwal khusus.</p><button class="btn btn-warn btn-sm" style="margin-top:6px" data-action="reset-ov">↩ Kembali ke jadwal normal</button>`:`<p class="sub" style="margin-top:8px">Belum ada perubahan khusus. Edit apa saja di bawah akan jadi jadwal khusus tanggal ini, jadwal normal tidak berubah.</p>`):''}
   </div>
   <div class="sec">Jadwal ${DN[day]} — ${esc(child(cid).name)}</div>
-  ${(()=>{const tk=myTasks(cid).filter(t=>toMin(t.time)!=null);return schedTable(curItems(),true,tk)+(tk.length?`<p class="sub" style="margin:-2px 0 8px">Baris berwarna = tugas berjam (hanya tampilan). Jam & poinnya diatur di tab 📝 Tugas.</p>`:'');})()}
+  ${(()=>{const tk=myTasks(cid,day).filter(t=>toMin(t.time)!=null);return schedTable(curItems(),true,tk)+(tk.length?`<p class="sub" style="margin:-2px 0 8px">Baris berwarna = tugas berjam (hanya tampilan). Jam & poinnya diatur di tab 📝 Tugas.</p>`:'');})()}
   <button class="btn btn-primary" data-action="add-item">➕ Tambah Kegiatan</button>
   ${mode==='perm'&&curItems().length?`<button class="btn btn-ghost" data-action="copy-day">📋 Salin jadwal ${DN[day]} ke hari lain</button>`:''}`;
 }
@@ -841,7 +865,7 @@ function copyModal(){
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Salin</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
 function pTasks(B){
-  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''}${toMin(t.time)!=null?` • 🕒 ${t.time}`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
+  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''}${t.days?.length&&t.days.length<7?` • 📅 ${daysLabel(t.days)}`:''}${toMin(t.time)!=null?` • 🕒 ${t.time}`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
 }
 function pRewards(B){
   B.innerHTML=missionCard(true)+`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${nf(r.cost)} poin${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
@@ -914,6 +938,10 @@ function taskModal(id){
   <p class="sub">Isi 1 jika cukup sekali sehari. Contoh: "Minum air" bisa 8 kali, poin didapat tiap kali disetujui.</p>
   <label>Jam muncul di "Hari Ini" (opsional)</label><input name="time" type="time" value="${t?.time||''}">
   <p class="sub">Jika diisi, tugas tampil di jadwal Hari Ini anak pada jam tersebut lengkap dengan tombol Selesai. Kosongkan bila tidak terikat jam.</p>
+  <label>Hari aktif</label>
+  <div class="dchips" id="task-days">${MON.map(k=>`<button type="button" class="dchip ${taskOn(t,k)?'on':''}" data-action="day-tog" data-v="${k}">${DN[k].slice(0,3)}</button>`).join('')}</div>
+  <div class="dpre"><button type="button" data-action="day-preset" data-v="all">Setiap hari</button><button type="button" data-action="day-preset" data-v="weekday">Senin–Jumat</button><button type="button" data-action="day-preset" data-v="weekend">Sabtu–Minggu</button></div>
+  <p class="sub">Tugas hanya muncul (di Hari Ini, jadwal, dan pengingat) pada hari yang dipilih. Hari libur tugas tidak memutus streak.</p>
   <label>Untuk</label><select name="forChild"><option value="all">Semua anak</option>${state.children.map(c=>`<option value="${c.id}" ${t?.forChild===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
   <label class="chk"><input type="checkbox" name="active" ${t?.active!==false?'checked':''}>Aktif</label>
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
@@ -1107,6 +1135,8 @@ document.body.addEventListener('click',async e=>{
       case 'add-rule':$('#rules').insertAdjacentHTML('beforeend',ruleRow({type:el.dataset.v,when:'',pts:1}));$('#rules .rule:last-child .rw').focus();break;
       case 'del-rule':el.closest('.rule').remove();break;
       case 'news-ok':closeModal();break;
+      case 'day-tog':el.classList.toggle('on');break;
+      case 'day-preset':{const on=el.dataset.v==='weekday'?WEEKDAYS:el.dataset.v==='weekend'?WEEKEND:MON;$$('#task-days .dchip').forEach(b=>b.classList.toggle('on',on.includes(b.dataset.v)));break;}
       case 'week-today':state.weekDay=todayKey();renderChild();break;
       case 'replay-streak':{const c=child(state.childId);const evs=childNews(c,Date.now()/1000-14*86400).filter(n=>n.streak).map(n=>n.streak).slice(0,5);if(evs.length)streakPop(c,evs);break;}
       case 'install-app':if(installEvt){installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;renderParent();if(r.outcome==='accepted')toast('Aplikasi di-install!','success');}break;
@@ -1172,7 +1202,8 @@ document.body.addEventListener('submit',async e=>{
     }
     else if(fid==='form-task'){
       const pts=parseInt(v.points,10)||0;
-      const d={name:v.name.trim(),icon:v.icon,points:pts,rules:pts>=2?readRules():[],maxPerDay:maxOf({maxPerDay:v.maxPerDay}),time:toMin(v.time)!=null?v.time:'',forChild:v.forChild||'all',active:!!v.active};
+      const days=[...$$('#task-days .dchip.on')].map(b=>b.dataset.v);if(!days.length)throw new Error('Pilih minimal satu hari aktif');
+      const d={days:days.length===7?[]:days,name:v.name.trim(),icon:v.icon,points:pts,rules:pts>=2?readRules():[],maxPerDay:maxOf({maxPerDay:v.maxPerDay}),time:toMin(v.time)!=null?v.time:'',forChild:v.forChild||'all',active:!!v.active};
       if(eid)await updateDoc(fdoc('tasks',eid),d);else await setDoc(doc(fcol('tasks')),{...d,sortOrder:state.tasks.length});
       closeModal();toast('Tugas disimpan','success');
     }
