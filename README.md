@@ -77,6 +77,13 @@ const firebaseConfig = {
 - Riwayat Poin anak menampilkan rincian poin dasar + bonus/hukuman.
 - Data baru: `tasks.rules`, serta `completions.base/adj` dan `ledger.base/adj`. Firestore Rules tidak perlu diubah.
 
+## Pembaruan v2.9 (Nov 2026)
+- **Jadwal anak:** tab Jadwal menampilkan hari ini sebagai default, dengan dropdown "📅 Lihat hari" untuk memilih hari lain (+ tombol kembali ke hari ini).
+- **Streak tugas (aturan baru):** dihitung per tugas, yaitu hari berturut-turut tugas disetujui **tanpa** pengurangan nilai. Putus bila ada hari terlewat atau kena hukuman/potongan. Mulai hari ke-5 berturut-turut, tugas itu mendapat **+1 poin bonus streak per hari**.
+- **Bonus streak disetujui orang tua:** muncul tercentang di jendela verifikasi (juga untuk tugas 1 poin). Bila orang tua memberi hukuman/potongan, bonus otomatis batal dan muncul peringatan bahwa streak akan putus. "Setujui Semua" ikut memberi bonus streak.
+- **Pop-up saat anak membuka app** (berurutan): 🎆 perayaan STREAK! dengan kembang api bila ada bonus streak baru → 📬 kabar poin → 🔥 status streak harian (sekali sehari: daftar tugas ber-streak, tugas menuju streak, kata semangat, dan peringatan hal yang menghilangkan streak).
+- **Tab 📬 Kabar (anak):** kumpulan kabar poin 14 hari terakhir + status streak, dan tombol "🎆 Rayakan lagi".
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 

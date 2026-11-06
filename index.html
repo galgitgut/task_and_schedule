@@ -88,6 +88,23 @@ label{font-weight:700;color:var(--tl);font-size:14px;margin-top:8px;display:bloc
 .two{display:flex;gap:10px}.two>div{flex:1}
 .chk{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--text)}.chk input{width:auto;margin:0}
 .theme-fab{position:fixed;top:14px;right:14px;z-index:20}
+/* PILIH HARI JADWAL */
+.daysel{display:flex;align-items:center;gap:10px;margin:4px 0 10px}.daysel label{margin:0;white-space:nowrap}.daysel select{margin:0;flex:1;font-weight:800}
+/* STREAK TUGAS */
+.sk-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--pdbg);margin:6px 0}
+.sk-row .ic{font-size:26px}.sk-row .bd{flex:1;min-width:0;font-weight:800}.sk-row .bd .sub{font-weight:600}
+.sk-row .n{font-weight:900;font-size:18px;color:var(--pdfg);white-space:nowrap}
+.sk-row.near{background:var(--soft)}.sk-row.near .n{color:var(--pri);font-size:14px}
+.sk-bar{height:6px;border-radius:4px;background:var(--line);margin-top:5px;overflow:hidden}.sk-bar i{display:block;height:100%;background:var(--warn);border-radius:4px}
+.warnbox{background:var(--nobg);color:var(--nofg);border-radius:16px;padding:12px 14px;font-size:13px;font-weight:700;margin-top:10px;line-height:1.5}
+.cheer{text-align:center;font-weight:800;font-size:15px;margin:10px 0;padding:10px;border-radius:16px;background:var(--soft)}
+.big-fire{font-size:84px;line-height:1;animation:pl 0.9s ease-in-out infinite}
+.wow{font-size:34px;font-weight:900;letter-spacing:1px;background:linear-gradient(90deg,#F6C85F,#E98E7C,#4E9381,#F6C85F);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:wv 2s linear infinite}
+@keyframes wv{to{background-position:300% 0}}
+canvas.fw{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2000}
+.rchk.skl{background:var(--pdbg)}.rchk.skl b{color:var(--pdfg)}
+.newdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--err);margin-left:4px;vertical-align:middle}
+.dayhd{font-size:12px;font-weight:900;color:var(--tl);margin:14px 0 2px;text-transform:uppercase;letter-spacing:.5px}
 /* ATURAN BONUS/HUKUMAN */
 .rule{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0;padding:6px 6px 6px 10px;border-radius:14px;font-size:13px;font-weight:800}
 .rule.bonus{background:var(--okbg);color:var(--okfg)}.rule.penalty{background:var(--nobg);color:var(--nofg)}
@@ -188,7 +205,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
 
 <div id="screen-landing" class="screen">
   <button class="ib sf theme-fab" data-action="toggle-theme" title="Ganti tema">🌙</button>
-  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.8</p></div>
+  <div class="hero"><img class="hero-icon" src="favicon.svg" alt="" width="110" height="110" style="border-radius:28px;box-shadow:0 8px 20px rgba(61,124,107,.25)"><h1>Petualangan Malika dan Keandra</h1><p class="sub" id="land-fam"></p><p class="sub" style="font-size:11px;opacity:.7">v2.9</p></div>
   <h2 style="text-align:center;margin:8px 0 16px">Kamu siapa hari ini?</h2>
   <button class="btn btn-primary" style="padding:24px" data-action="land-parent">👨‍👩‍👧 Aku Orang Tua</button>
   <button class="btn btn-secondary" style="padding:24px" data-action="land-child">🧒 Aku Anak</button>
@@ -205,6 +222,7 @@ html[data-theme="dark"] .btn-primary,html[data-theme="dark"] .tab.active,html[da
     <button class="nav-item" data-action="child-tab" data-tab="tasks"><span class="nav-icon">✅</span>Tugas</button>
     <button class="nav-item" data-action="child-tab" data-tab="rewards"><span class="nav-icon">🎁</span>Hadiah</button>
     <button class="nav-item" data-action="child-tab" data-tab="points"><span class="nav-icon">⭐</span>Poin</button>
+    <button class="nav-item" data-action="child-tab" data-tab="news"><span class="nav-icon">📬</span>Kabar</button>
   </nav>
 </div>
 
@@ -275,7 +293,9 @@ let tt;
 function toast(m,t=''){const e=$('#toast');e.textContent=m;e.className='toast show '+t;clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),2800);}
 function showScreen(id){$$('.screen').forEach(s=>s.classList.remove('active'));$('#'+id)?.classList.add('active');window.scrollTo(0,0);}
 const openModal=h=>{$('#modal-content').innerHTML=h;$('#modal-root').classList.add('active');};
-const closeModal=()=>{$('#modal-root').classList.remove('active');if(exitAsk){exitAsk=false;armBack();}};
+let popQ=[]; // antrean pop-up anak (kembang api → kabar → streak harian)
+const closeModal=()=>{$('#modal-root').classList.remove('active');if(exitAsk){exitAsk=false;armBack();}if(popQ.length)setTimeout(nextPop,280);};
+function nextPop(){if(state.role!=='child'){popQ=[];return;}if($('#modal-root').classList.contains('active'))return;const f=popQ.shift();if(f)f();}
 /* ===== TOMBOL KEMBALI (back) ===== */
 let exitAsk=false;
 const modalOpen=()=>$('#modal-root').classList.contains('active');
@@ -348,6 +368,27 @@ const tsec=x=>x.createdAt?.seconds??Date.now()/1000;
 function streakOf(ds){const t=todayStr();let d=ds.has(t)?t:addDays(t,-1),n=0;while(ds.has(d)){n++;d=addDays(d,-1);}return n;}
 function bestStreak(ds){let b=0,c=0,prev=null;[...ds].sort().forEach(d=>{c=prev&&addDays(prev,1)===d?c+1:1;b=Math.max(b,c);prev=d;});return b;}
 const apDates=(cid,tid)=>new Set(state.completions.filter(x=>x.childId===cid&&x.status==='approved'&&(!tid||x.taskId===tid)).map(x=>x.date));
+/* Streak tugas: hari berturut-turut tugas itu disetujui TANPA pengurangan nilai.
+   Putus bila: ada hari terlewat, atau pada hari itu kena hukuman/pengurangan poin. */
+const STREAK_MIN=5; // mulai hari ke-5 berturut-turut: +1 poin bonus setiap hari
+const hasCut=x=>(x.adj||[]).some(a=>a.delta<0);
+function cleanDates(cid,tid){
+  const xs=state.completions.filter(x=>x.childId===cid&&x.taskId===tid&&x.status==='approved');
+  const bad=new Set(xs.filter(hasCut).map(x=>x.date));
+  return new Set(xs.map(x=>x.date).filter(d=>!bad.has(d)));
+}
+const taskStreak=(cid,tid)=>streakOf(cleanDates(cid,tid));
+// jumlah hari bersih berturut-turut yang berakhir tepat sehari sebelum tanggal d
+function streakBefore(cid,tid,d){const ds=cleanDates(cid,tid);let k=addDays(d,-1),n=0;while(ds.has(k)){n++;k=addDays(k,-1);}return n;}
+// apakah pengajuan x berhak bonus streak +1 (dihitung saat verifikasi orang tua)
+function streakBonusFor(x){
+  const prev=streakBefore(x.childId,x.taskId,x.date),n=prev+1;
+  const same=state.completions.filter(k=>k.childId===x.childId&&k.taskId===x.taskId&&k.date===x.date&&k.status==='approved');
+  if(same.some(hasCut))return {prev,n,ok:false};                 // hari itu sudah kena pengurangan
+  if(same.some(k=>(k.adj||[]).some(a=>a.streak)))return {prev,n,ok:false,given:true}; // sudah diberi hari itu
+  return {prev,n,ok:n>=STREAK_MIN};
+}
+const streakAdj=n=>({label:`Streak ${n} hari berturut-turut`,delta:1,streak:n});
 function childStats(cid){
   const ds=apDates(cid),led=state.ledger.filter(x=>x.childId===cid);
   return {tasks:state.completions.filter(x=>x.childId===cid&&x.status==='approved').length,streak:streakOf(ds),best:bestStreak(ds),
@@ -476,9 +517,9 @@ function resumeOrLanding(){
   else if(x.role==='child'&&x.childId){state.role='child';state.childId=x.childId;showScreen('screen-child');renderChild();setTimeout(showChildNews,1500);}
   else goLanding();
 }
-function goLanding(){state.role=null;state.childId=null;closeModal();saveSession();$('#land-fam').textContent=state.family?.name||'';applyTheme();showScreen('screen-landing');}
+function goLanding(){popQ=[];state.role=null;state.childId=null;closeModal();saveSession();$('#land-fam').textContent=state.family?.name||'';applyTheme();showScreen('screen-landing');}
 function enterParent(){state.role='parent';state.parentTab='approval';lastAct=Date.now();showScreen('screen-parent');renderParent();saveSession();}
-function enterChild(cid){state.role='child';state.childId=cid;state.childTab='today';lastAct=Date.now();showScreen('screen-child');renderChild();saveSession();setTimeout(showChildNews,400);}
+function enterChild(cid){state.role='child';state.childId=cid;state.childTab='today';state.weekDay=null;lastAct=Date.now();showScreen('screen-child');renderChild();saveSession();setTimeout(showChildNews,400);}
 // kembali ke halaman awal jika app ditinggal > 2 menit
 
 async function createFamily(name,pname,pin){
@@ -565,7 +606,12 @@ function renderChild(){
   $$('#child-nav .nav-item').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.childTab));
   const B=$('#child-body'),t=state.childTab;
   if(t==='today')childToday(c,B);
-  else if(t==='week'){B.innerHTML=MON.map(dk=>`<div class="sec" style="color:var(--pri)">${DN[dk]}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk),false,myTasks(c.id).filter(t=>toMin(t.time)!=null))}`).join('');}
+  else if(t==='week'){
+    const dk=state.weekDay||todayKey();
+    B.innerHTML=`<div class="daysel"><label for="week-day">📅 Lihat hari</label><select id="week-day" data-change="week-day">${MON.map(k=>`<option value="${k}" ${k===dk?'selected':''}>${DN[k]}${k===todayKey()?' (hari ini)':''}${hasOv(c.id,k)?' • khusus':''}</option>`).join('')}</select></div>
+    <div class="sec" style="color:var(--pri)">Jadwal ${DN[dk]}${dk===todayKey()?' — hari ini':''}${hasOv(c.id,dk)?' <span class="sub">(jadwal khusus)</span>':''}</div>${schedTable(getSched(c.id,dk),false,myTasks(c.id).filter(t=>toMin(t.time)!=null))}
+    ${dk!==todayKey()?`<button class="btn btn-ghost" style="margin-top:10px" data-action="week-today">↩ Kembali ke hari ini</button>`:''}`;}
+  else if(t==='news')childNewsPage(c,B);
   else if(t==='tasks')childTasks(c,B);
   else if(t==='rewards')childRewards(c,B);
   else childPoints(c,B);
@@ -576,8 +622,8 @@ function taskCard(c,t,d,withTime){
   const cls=left>0?(pd?'pending':''):(pd?'pending':'done');
   const right=left>0?`<button class="btn btn-primary btn-sm" data-action="complete-task" data-id="${t.id}">Selesai</button>`:pd?`<span class="badge b-pend">⏳ Menunggu</span>`:`<span class="badge b-ok">✓ Disetujui</span>`;
   const prog=max>1?`<div class="sub">Hari ini: ${xs.length}/${max} kali${ap?` • ✓ ${ap}`:''}${pd?` • ⏳ ${pd}`:''}</div>`:(left>0&&pd?`<div class="sub">⏳ Menunggu</div>`:'');
-  const sk=streakOf(apDates(c.id,t.id));
-  return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=2?` <span class="streak">🔥 ${sk} hari</span>`:''}</div>${prog}</div>${right}</div>`;
+  const sk=taskStreak(c.id,t.id);
+  return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=2?` <span class="streak">🔥 ${sk} hari${sk>=STREAK_MIN?' • +1/hari':''}</span>`:''}</div>${prog}</div>${right}</div>`;
 }
 // status satu tugas hari ini untuk tampilan ringkas di jadwal
 function tState(c,t,d){
@@ -632,30 +678,96 @@ function badgesBlock(s){
 }
 const daysRow=(arr,w)=>`<div class="days7">${MON.map((dk,i)=>`<div class="${arr[i]?'on':''}${w.days[i]===todayStr()?'" style="outline:2px solid var(--pri)':''}">${DN[dk].slice(0,3)}<b>${arr[i]||'·'}</b></div>`).join('')}</div>`;
 // rincian bonus/hukuman satu tugas (dipakai di riwayat & kabar)
-const adjLines=x=>x.adj?.length?`${x.base!=null?`<span class="why" style="color:var(--tl)">Poin dasar +${x.base}</span>`:''}${x.adj.map(a=>`<span class="why ${a.delta>0?'plus':'min'}">${a.delta>0?'🎉':'⚠️'} ${esc(a.label||(a.delta>0?'Bonus':'Dikurangi'))} ${a.delta>0?'+':'−'}${Math.abs(a.delta)}</span>`).join('')}`:'';
+const adjLines=x=>x.adj?.length?`${x.base!=null?`<span class="why" style="color:var(--tl)">Poin dasar +${x.base}</span>`:''}${x.adj.map(a=>`<span class="why ${a.delta>0?'plus':'min'}">${a.streak?'🔥':a.delta>0?'🎉':'⚠️'} ${esc(a.label||(a.delta>0?'Bonus':'Dikurangi'))} ${a.delta>0?'+':'−'}${Math.abs(a.delta)}</span>`).join('')}`:'';
 const seenKey=cid=>'pmkSeen_'+cid;
-function childNews(c){
-  let since;try{since=parseFloat(localStorage.getItem(seenKey(c.id)));}catch{}
+function childNews(c,since){
   if(!since)since=Date.now()/1000-86400; // pertama kali: tampilkan kabar 24 jam terakhir
   const T=o=>o?.seconds??0,out=[];
   state.completions.filter(x=>x.childId===c.id&&(x.status==='approved'||x.status==='rejected')&&T(x.reviewedAt)>since).forEach(x=>out.push({t:T(x.reviewedAt),html:x.status==='approved'
     ?`<div class="news"><div class="ic">✅</div><div class="bd">${esc(x.taskName)}<div class="sub">tugas disetujui</div>${adjLines(x)}</div><div class="dl plus">+${x.points||0}</div></div>`
-    :`<div class="news"><div class="ic">❌</div><div class="bd">${esc(x.taskName)}<div class="sub">tugas ditolak, boleh dicoba lagi</div></div><div class="dl">0</div></div>`,d:x.status==='approved'?(x.points||0):0}));
+    :`<div class="news"><div class="ic">❌</div><div class="bd">${esc(x.taskName)}<div class="sub">tugas ditolak, boleh dicoba lagi</div></div><div class="dl">0</div></div>`,d:x.status==='approved'?(x.points||0):0,
+    streak:(()=>{const a=x.status==='approved'&&(x.adj||[]).find(k=>k.streak);if(!a)return null;const t=state.tasks.find(k=>k.id===x.taskId);return {name:x.taskName,icon:t?.icon||'⭐',n:a.streak,d:a.delta};})()}));
   state.ledger.filter(x=>x.childId===c.id&&(x.type==='bonus'||x.type==='penalty')&&T(x.createdAt)>since).forEach(x=>out.push({t:T(x.createdAt),d:x.delta,html:`<div class="news"><div class="ic">${LICON[x.type]}</div><div class="bd">${x.type==='bonus'?'Bonus dari orang tua':'Poin dikurangi orang tua'}<span class="why ${x.delta>0?'plus':'min'}">Karena: ${esc(x.note||'-')}</span></div><div class="dl ${x.delta>0?'plus':'min'}">${x.delta>0?'+':'−'}${nf(Math.abs(x.delta))}</div></div>`}));
   state.redemptions.filter(x=>x.childId===c.id&&(x.status==='approved'||x.status==='rejected')&&T(x.reviewedAt)>since).forEach(x=>out.push({t:T(x.reviewedAt),d:x.status==='approved'?-(x.cost||0):0,html:`<div class="news"><div class="ic">🎁</div><div class="bd">${esc(x.rewardName)}<div class="sub">hadiah ${x.status==='approved'?'disetujui, selamat!':'belum disetujui'}</div></div><div class="dl ${x.status==='approved'?'min':''}">${x.status==='approved'?'−'+nf(x.cost):'0'}</div></div>`}));
   return out.sort((a,b)=>b.t-a.t);
 }
-function showChildNews(){
-  if(state.role!=='child'||modalOpen())return;
-  const c=child(state.childId);if(!c)return;
-  const ns=childNews(c);
-  try{localStorage.setItem(seenKey(c.id),String(Date.now()/1000));}catch{}
-  if(!ns.length)return;
+/* ---- kembang api (canvas) ---- */
+function fireworks(ms=5000){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const cv=document.createElement('canvas');cv.className='fw';document.body.appendChild(cv);
+  const g=cv.getContext('2d'),dpr=Math.min(2,devicePixelRatio||1);
+  const size=()=>{cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;};size();
+  const C=['#F6C85F','#E98E7C','#76B5A4','#9DC3E6','#F4B9A8','#FFFFFF','#B48EE0'],P=[];
+  const burst=()=>{const x=(0.15+Math.random()*0.7)*cv.width,y=(0.12+Math.random()*0.4)*cv.height,c=C[Math.random()*C.length|0],n=46+Math.random()*24|0;
+    for(let i=0;i<n;i++){const a=Math.PI*2*i/n,v=(2.2+Math.random()*3.2)*dpr;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,c:Math.random()<.25?'#fff':c});}};
+  const t0=performance.now();let last=0;
+  (function loop(t){
+    if(t-t0<ms-1200&&t-last>380){burst();if(Math.random()<.5)burst();last=t;}
+    g.globalCompositeOperation='destination-out';g.fillStyle='rgba(0,0,0,.22)';g.fillRect(0,0,cv.width,cv.height);g.globalCompositeOperation='lighter';
+    for(let i=P.length-1;i>=0;i--){const q=P[i];q.vx*=.985;q.vy=q.vy*.985+.045*dpr;q.x+=q.vx;q.y+=q.vy;q.l-=.012;if(q.l<=0){P.splice(i,1);continue;}
+      g.globalAlpha=q.l;g.fillStyle=q.c;g.beginPath();g.arc(q.x,q.y,2.4*dpr,0,7);g.fill();}
+    g.globalAlpha=1;
+    if(t-t0<ms||P.length)requestAnimationFrame(loop);else cv.remove();
+  })(t0);
+}
+function streakPop(c,evs){
+  openModal(`<div style="text-align:center"><div class="big-fire">🔥</div><div class="wow">STREAK!</div>
+    <p style="font-weight:800;margin-top:6px">Hebat, ${esc(c.name)}! Kamu konsisten banget! 🎉</p></div>
+    <div style="margin-top:10px">${evs.map(e=>`<div class="sk-row"><div class="ic">${e.icon}</div><div class="bd">${esc(e.name)}<div class="sub">${e.n} hari berturut-turut!</div></div><div class="n">+${e.d} ⭐</div></div>`).join('')}</div>
+    <div class="cheer">Bonus streak sudah disetujui Ayah/Ibu. Pertahankan terus ya! 💪</div>
+    <button class="btn btn-primary" data-action="news-ok">Hore! 🎆</button>`);
+  fireworks();
+}
+const CHEERS=['Sedikit demi sedikit, lama-lama jadi bukit! ⛰️','Kamu hebat! Terus semangat ya! 💪','Konsisten itu kekuatan super! 🦸','Satu hari lagi, satu langkah lebih hebat! 🚀','Ayah & Ibu bangga sama kamu! ❤️','Jangan putus ya, kamu pasti bisa! 🌟'];
+function streakInfo(c){
+  const ts=myTasks(c.id),today=todayStr();
+  return ts.map(t=>{const n=taskStreak(c.id,t.id),ds=cleanDates(c.id,t.id);return {t,n,done:ds.has(today),pend:getComps(c.id,t.id,today).some(x=>x.status==='pending')};}).filter(o=>o.n>0).sort((a,b)=>b.n-a.n);
+}
+function streakBody(c){
+  const all=streakInfo(c),hot=all.filter(o=>o.n>=STREAK_MIN),near=all.filter(o=>o.n<STREAK_MIN);
+  const st=o=>o.done?'✅ hari ini sudah aman':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini';
+  return `${hot.length?`<div class="sec">🔥 Streak +1/hari (${hot.length})</div>${hot.map(o=>`<div class="sk-row"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div></div><div class="n">🔥 ${o.n} hari</div></div>`).join('')}`
+    :`<p class="sub" style="text-align:center;margin-top:6px">Belum ada tugas dengan streak ${STREAK_MIN} hari. Kerjakan tugas yang sama ${STREAK_MIN} hari berturut-turut untuk dapat bonus <b>+1 poin setiap hari</b>!</p>`}
+  ${near.length?`<div class="sec">🌱 Menuju streak</div>${near.slice(0,6).map(o=>`<div class="sk-row near"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div><div class="sk-bar"><i style="width:${o.n/STREAK_MIN*100}%"></i></div></div><div class="n">${o.n}/${STREAK_MIN}<br>${STREAK_MIN-o.n} hari lagi</div></div>`).join('')}`:''}
+  <div class="cheer">${CHEERS[new Date().getDate()%CHEERS.length]}</div>
+  <div class="warnbox">⚠️ <b>Streak akan HILANG kalau:</b><br>1. Lupa mengerjakan tugasnya, walau cuma sehari.<br>2. Tugasnya kena pengurangan nilai/hukuman dari Ayah atau Ibu.<br>Kerjakan setiap hari dengan baik dan rapi ya!</div>`;
+}
+function dailyStreakPop(c){
+  openModal(`<div style="text-align:center"><div style="font-size:48px" class="pulse">🔥</div><h3>Streak Tugasmu Hari Ini</h3><p class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</p></div>
+  ${streakBody(c)}
+  <button class="btn btn-primary" style="margin-top:12px" data-action="news-ok">Siap, semangat! 💪</button>`);
+}
+function newsPop(c,ns){
   const tot=ns.reduce((a,n)=>a+n.d,0);
   openModal(`<div style="text-align:center"><div style="font-size:44px">📬</div><h3>Kabar poin untuk ${esc(c.name)}</h3><p class="sub">Sejak terakhir kamu buka aplikasi</p></div>
   <div style="margin-top:8px">${ns.map(n=>n.html).join('')}</div>
   <div class="rv-total">Total perubahan <b style="color:var(${tot<0?'--err':'--ok'})">${tot>=0?'+':'−'}${nf(Math.abs(tot))}</b>Poinmu sekarang ⭐ ${nf(c.balance||0)}</div>
   <button class="btn btn-primary" style="margin-top:12px" data-action="news-ok">Oke! 👍</button>`);
+}
+// dipanggil saat anak membuka app: kembang api streak → kabar poin → streak harian (sekali sehari)
+function showChildNews(){
+  if(state.role!=='child'||modalOpen())return;
+  const c=child(state.childId);if(!c)return;
+  let since;try{since=parseFloat(localStorage.getItem(seenKey(c.id)));}catch{}
+  const ns=childNews(c,since);
+  try{localStorage.setItem(seenKey(c.id),String(Date.now()/1000));}catch{}
+  popQ=[];
+  const evs=ns.filter(n=>n.streak).map(n=>n.streak);
+  if(evs.length)popQ.push(()=>streakPop(c,evs));
+  if(ns.length)popQ.push(()=>newsPop(c,ns));
+  const dk='pmkDaily_'+c.id;let last;try{last=localStorage.getItem(dk);}catch{}
+  if(last!==todayStr()&&myTasks(c.id).length){try{localStorage.setItem(dk,todayStr());}catch{}popQ.push(()=>dailyStreakPop(c));}
+  nextPop();
+}
+// halaman Kabar: semua notifikasi 14 hari terakhir + status streak (bisa dibuka lagi kapan saja)
+function childNewsPage(c,B){
+  const ns=childNews(c,Date.now()/1000-14*86400),evs=ns.filter(n=>n.streak);
+  const lbl=t=>{const d=fmt(new Date(t*1000));return d===todayStr()?'Hari ini':d===addDays(todayStr(),-1)?'Kemarin':new Date(t*1000).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'short'});};
+  let cur='',list='';
+  ns.forEach(n=>{const l=lbl(n.t);if(l!==cur){cur=l;list+=`<div class="dayhd">${l}</div>`;}list+=n.html;});
+  B.innerHTML=`<div class="card"><div style="display:flex;align-items:center;gap:8px"><b style="flex:1">🔥 Streak Tugas</b>${evs.length?`<button class="btn btn-sm btn-primary" data-action="replay-streak">🎆 Rayakan lagi</button>`:''}</div>${streakBody(c)}</div>
+  <div class="sec">📬 Kabar Poin (14 hari terakhir)</div>
+  <div class="card">${list||`<p class="sub" style="text-align:center">Belum ada kabar. Ayo kerjakan tugas! ✨</p>`}</div>`;
 }
 function childPoints(c,B){
   const l=state.ledger.filter(x=>x.childId===c.id).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,30);
@@ -680,7 +792,7 @@ function pApproval(B){
   const ts=state.completions.filter(c=>c.status==='pending').sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   const rs=state.redemptions.filter(r=>r.status==='pending');
   const ok=(a,id)=>`<div class="acts"><button class="ib ok" data-action="approve-${a}" data-id="${id}">✓</button><button class="ib no" data-action="reject-${a}" data-id="${id}">✕</button></div>`;
-  B.innerHTML=`<div class="sec">Tugas Menunggu (${ts.length})</div>`+(ts.length>1?`<button class="btn btn-primary" data-action="approve-all">✓ Setujui Semua (${ts.length}) • +${nf(ts.reduce((a,x)=>a+(state.tasks.find(t=>t.id===x.taskId)?.points||0),0))} poin</button><p class="sub" style="margin:-4px 0 8px">Setujui Semua memakai poin dasar. Untuk bonus/hukuman/pengurangan, tekan ✓ satu per satu.</p>`:'')+(ts.length?ts.map(x=>{const c=child(x.childId),t=state.tasks.find(k=>k.id===x.taskId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.taskName)}<div class="sub">${esc(c?.name||'?')} • ${x.date} • +${t?.points??0} poin</div></div>${ok('task',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">🎉 Tidak ada tugas menunggu.</div>`)
+  B.innerHTML=`<div class="sec">Tugas Menunggu (${ts.length})</div>`+(ts.length>1?`<button class="btn btn-primary" data-action="approve-all">✓ Setujui Semua (${ts.length}) • +${nf(ts.reduce((a,x)=>a+(state.tasks.find(t=>t.id===x.taskId)?.points||0),0))} poin</button><p class="sub" style="margin:-4px 0 8px">Setujui Semua memakai poin dasar (+ bonus streak bila berhak). Untuk bonus/hukuman/pengurangan, tekan ✓ satu per satu.</p>`:'')+(ts.length?ts.map(x=>{const c=child(x.childId),t=state.tasks.find(k=>k.id===x.taskId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.taskName)}<div class="sub">${esc(c?.name||'?')} • ${x.date} • +${t?.points??0} poin</div></div>${ok('task',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">🎉 Tidak ada tugas menunggu.</div>`)
   +`<div class="sec">Tukar Hadiah (${rs.length})</div>`+(rs.length?rs.map(x=>{const c=child(x.childId);return `<div class="row"><div class="row-icon">${c?.avatar||'🐶'}</div><div class="row-body">${esc(x.rewardName)}<div class="sub">${esc(c?.name||'?')} • ${nf(x.cost)} poin</div></div>${ok('redemption',x.id)}</div>`;}).join(''):`<div class="card t-mint" style="text-align:center">✨ Tidak ada permintaan tukar.</div>`);
 }
 function curItems(){
@@ -852,24 +964,30 @@ function reviewModal(id){
   openModal(`<h3>${t.icon||'⭐'} ${esc(x.taskName)}</h3><p class="sub">${c?.avatar||''} ${esc(c?.name||'?')} • ${x.date} • poin dasar <b>+${base}</b></p>
   <form id="form-review" autocomplete="off" data-id="${id}">
     ${rr('bonus','🎉 Bonus')}${rr('penalty','⚠️ Hukuman')}
+    ${(()=>{const sb=streakBonusFor(x);return sb.ok?`<div class="sec" style="margin-top:12px">🔥 Streak</div><label class="chk rchk skl"><input type="checkbox" name="streak" value="${sb.n}" checked>🔥 Streak ${sb.n} hari berturut-turut<b>+1</b></label>`:sb.prev?`<p class="sub" style="margin-top:10px">🔥 Streak saat ini ${sb.prev} hari${sb.n<STREAK_MIN?` • bonus +1/hari mulai hari ke-${STREAK_MIN}`:''}</p>`:'';})()}
+    <p class="sub" id="streak-warn" style="display:none;color:var(--nofg);font-weight:800">⚠️ Ada pengurangan nilai: streak tugas ini akan PUTUS dan bonus streak tidak diberikan.</p>
     ${base>1?`<div class="sec" style="margin-top:12px">✂️ Kurangi poin (opsional)</div>
     <div style="display:flex;gap:8px"><input name="cut" type="number" min="0" max="${base-1}" value="0" inputmode="numeric" style="width:80px;flex:none"><input name="cutWhy" maxlength="60" placeholder="Alasan, mis. belum selesai semua"></div>
     <p class="sub">Maksimal ${base-1} poin. Untuk tidak memberi poin sama sekali, pakai tombol ✕ Tolak.</p>`:''}
     <div class="rv-total">Poin yang diterima <b id="rv-sum">+${base}</b></div>
     <button type="submit" class="btn btn-primary" style="margin-top:12px">✓ Setujui</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button>
-  </form>`);
+  </form>`);  $('#rv-sum').textContent='+'+reviewAdj($('#form-review')).sum; // total awal sudah termasuk bonus streak
 }
 function reviewAdj(f){
   const x=state.completions.find(k=>k.id===f.dataset.id),t=state.tasks.find(k=>k.id===x?.taskId),rules=t?.rules||[],base=t?.points||0;
   const adj=[...f.querySelectorAll('input[name=rule]:checked')].map(el=>rules[+el.value]).filter(Boolean).map(r=>({label:r.when,delta:r.type==='bonus'?r.pts:-r.pts}));
   const cut=Math.min(Math.max(0,parseInt(f.cut?.value,10)||0),Math.max(0,base-1)),why=(f.cutWhy?.value||'').trim();
   if(cut>0)adj.push({label:why,delta:-cut,manual:true});
+  const neg=adj.some(a=>a.delta<0),sk=f.querySelector('input[name=streak]');
+  if(sk){if(neg){if(sk.checked)sk.dataset.auto='1';sk.checked=false;sk.disabled=true;}else{sk.disabled=false;if(sk.dataset.auto){sk.checked=true;delete sk.dataset.auto;}}}
+  const sw=f.querySelector('#streak-warn');if(sw)sw.style.display=neg&&streakBefore(x.childId,x.taskId,x.date)>0?'':'none';
+  if(sk&&sk.checked&&!neg)adj.push(streakAdj(+sk.value));
   return {adj,base,cut,why,sum:Math.max(0,base+adj.reduce((a,k)=>a+k.delta,0))};
 }
 async function approveTask(id){
   const x=state.completions.find(k=>k.id===id);
   if(!x||x.status!=='pending')return;
-  if((state.tasks.find(t=>t.id===x.taskId)?.points||0)>1){reviewModal(id);return;} // tugas ≥2 poin: verifikasi dulu
+  if((state.tasks.find(t=>t.id===x.taskId)?.points||0)>1||streakBonusFor(x).ok){reviewModal(id);return;} // tugas ≥2 poin / berhak streak: verifikasi dulu
   const b=writeBatch(db),pts=addApproval(b,x);
   await b.commit();toast('Disetujui! +'+pts+' poin','success');
 }
@@ -878,7 +996,8 @@ async function approveAll(){
   if(!ps.length)return;
   if(!confirm(`Setujui semua ${ps.length} tugas yang menunggu?`))return;
   let tot=0;
-  for(let i=0;i<ps.length;i+=100){const b=writeBatch(db);ps.slice(i,i+100).forEach(x=>tot+=addApproval(b,x));await b.commit();} // batas batch Firestore 500 operasi
+  const given=new Set(); // cegah bonus streak dobel untuk tugas & tanggal yang sama dalam satu kali proses
+  for(let i=0;i<ps.length;i+=100){const b=writeBatch(db);ps.slice(i,i+100).forEach(x=>{const k=x.childId+x.taskId+x.date,sb=streakBonusFor(x);const adj=sb.ok&&!given.has(k)?[streakAdj(sb.n)]:[];if(adj.length)given.add(k);tot+=addApproval(b,x,adj);});await b.commit();} // batas batch Firestore 500 operasi
   toast(`✓ ${ps.length} tugas disetujui • +${nf(tot)} poin`,'success');
 }
 async function approveRedemption(id){
@@ -896,6 +1015,9 @@ const reject=async(col,id)=>{await updateDoc(fdoc(col,id),{status:'rejected',rev
 async function del(col,id){if(!confirm('Hapus item ini?'))return;await deleteDoc(fdoc(col,id));toast('Dihapus','success');}
 
 /* ===== EVENT ===== */
+document.body.addEventListener('change',e=>{
+  if(e.target.dataset?.change==='week-day'){state.weekDay=e.target.value;renderChild();}
+});
 document.body.addEventListener('input',e=>{
   const f=e.target.closest('form');if(!f)return;
   if(f.id==='form-task'&&e.target.name==='points'){const box=$('#rules-box');if(box)box.style.display=(parseInt(e.target.value,10)||0)>=2?'':'none';}
@@ -922,6 +1044,8 @@ document.body.addEventListener('click',async e=>{
       case 'add-rule':$('#rules').insertAdjacentHTML('beforeend',ruleRow({type:el.dataset.v,when:'',pts:1}));$('#rules .rule:last-child .rw').focus();break;
       case 'del-rule':el.closest('.rule').remove();break;
       case 'news-ok':closeModal();break;
+      case 'week-today':state.weekDay=todayKey();renderChild();break;
+      case 'replay-streak':{const c=child(state.childId);const evs=childNews(c,Date.now()/1000-14*86400).filter(n=>n.streak).map(n=>n.streak).slice(0,5);if(evs.length)streakPop(c,evs);break;}
       case 'install-app':if(installEvt){installEvt.prompt();const r=await installEvt.userChoice;installEvt=null;renderParent();if(r.outcome==='accepted')toast('Aplikasi di-install!','success');}break;
       case 'exit-app':exitAsk=false;$('#modal-root').classList.remove('active');history.back();setTimeout(()=>{try{window.close();}catch{}},150);setTimeout(()=>{if(!document.hidden){armBack();toast('Tutup aplikasi dari layar HP ya');}},600);break;
       case 'toggle-theme':setTheme(isDark()?'light':'dark');break;
