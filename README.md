@@ -67,6 +67,9 @@ const firebaseConfig = {
 - **Jadwal orang tua menampilkan tugas berjam** sebagai baris berwarna (hanya tampilan, tanpa tombol edit/hapus), baik mode Permanen maupun Sekali saja. Jam dan poin tugas tetap diatur di tab Tugas.
 - **Tampilan PC/tablet:** di layar lebar (≥ 640px) app tampil sebagai kolom selebar 560px di tengah layar, lengkap dengan menu bawahnya. Tampilan di HP tidak berubah.
 
+## Pembaruan v2.7 (Nov 2026)
+- Kolom PIN tidak lagi bertipe "password" (tetap tampil ●●●●), dan semua formulir diberi `autocomplete="off"`. Pengelola sandi Google tidak lagi menawarkan atau menyimpan "username/password" di app ini, termasuk sandi dari app lain di domain `galgitgut.github.io`.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
