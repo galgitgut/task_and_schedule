@@ -70,6 +70,13 @@ const firebaseConfig = {
 ## Pembaruan v2.7 (Nov 2026)
 - Kolom PIN tidak lagi bertipe "password" (tetap tampil ●●●●), dan semua formulir diberi `autocomplete="off"`. Pengelola sandi Google tidak lagi menawarkan atau menyimpan "username/password" di app ini, termasuk sandi dari app lain di domain `galgitgut.github.io`.
 
+## Pembaruan v2.8 (Nov 2026)
+- **Aturan Bonus & Hukuman per tugas** (untuk tugas ≥2 poin): di formulir tugas, tambahkan "🎉 Jika … maka +N" dan "⚠️ Jika … maka −N".
+- **Verifikasi tugas ≥2 poin:** tombol ✓ membuka jendela verifikasi. Centang aturan yang berlaku, dan/atau kurangi poin (maks. poin−1) dengan alasan. Total terlihat langsung. "Setujui Semua" tetap memakai poin dasar.
+- **Kabar poin untuk anak:** setiap anak membuka app, muncul ringkasan sejak terakhir dibuka: tugas disetujui/ditolak (dengan rincian bonus/hukuman & alasannya), bonus/potongan manual, dan hadiah. Disimpan per HP.
+- Riwayat Poin anak menampilkan rincian poin dasar + bonus/hukuman.
+- Data baru: `tasks.rules`, serta `completions.base/adj` dan `ledger.base/adj`. Firestore Rules tidak perlu diubah.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
