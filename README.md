@@ -84,6 +84,13 @@ const firebaseConfig = {
 - **Pop-up saat anak membuka app** (berurutan): 🎆 perayaan STREAK! dengan kembang api bila ada bonus streak baru → 📬 kabar poin → 🔥 status streak harian (sekali sehari: daftar tugas ber-streak, tugas menuju streak, kata semangat, dan peringatan hal yang menghilangkan streak).
 - **Tab 📬 Kabar (anak):** kumpulan kabar poin 14 hari terakhir + status streak, dan tombol "🎆 Rayakan lagi".
 
+## Pembaruan v2.10 (Nov 2026)
+- **Pengingat pop-up di dalam app** (hanya saat app sedang terbuka; bukan push notification):
+  - Tugas berjam yang sampai waktunya dan belum dikerjakan: "Malika, waktunya …!" dengan tombol ✓ Sudah selesai / Nanti saja.
+  - Kegiatan jadwal yang dimulai: "Sekarang waktunya Sekolah (06:45–12:30)" + keterangan.
+  - Jadwal hari ini diubah orang tua: daftar kegiatan dengan tanda BARU / DIUBAH / DIHAPUS.
+- Waktu yang sudah lewat saat app dibuka (atau saat kembali dari latar belakang) tidak dimunculkan. Pengingat tetap berjalan untuk anak terakhir di HP itu walau app kembali ke halaman awal karena diam; tidak muncul di mode orang tua. Pengecekan setiap 20 detik.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
