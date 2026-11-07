@@ -96,6 +96,10 @@ const firebaseConfig = {
 - Tugas hanya muncul di Hari Ini, tab Tugas, jadwal (anak & orang tua, sesuai hari yang dilihat), dan pengingat pada hari aktifnya. Daftar tugas orang tua menampilkan label 📅 hari.
 - **Streak melompati hari libur tugas:** tugas Senin–Jumat tidak putus streaknya karena Sabtu–Minggu. Pop-up streak harian menampilkan "😴 libur hari ini, streak aman".
 
+## Pembaruan v2.12 (Nov 2026)
+- **Nilai poin: 1 poin = Rp500.** Kotak penjelasan di halaman Hadiah (anak & orang tua), nilai rupiah setiap hadiah, dan saldo poin anak dalam rupiah. Ubah di konstanta `POINT_RP` bila nilainya berganti.
+- **Riwayat Lengkap (tab Poin anak → 📜 Riwayat Lengkap):** semua pengajuan tugas, tukar hadiah, dan bonus/potongan manual, dikelompokkan per hari (dengan ringkasan poin harian), filter Semua / Disetujui / Ditolak / Menunggu / Streak / Hadiah / Bonus-Potong, rincian bonus/hukuman, jam kirim & jam diperiksa. Menampilkan 14 hari, tombol untuk memuat 14 hari sebelumnya.
+
 ## Ikon aplikasi
 - Ikon kucing tersenyum dengan bintang poin. `favicon.svg` juga dipakai di layar pembuka, halaman awal, dan jendela keluar. `favicon-32.png` (tab browser), `apple-touch-icon.png` (ikon saat "Tambahkan ke Layar Utama"), `icon-192.png` & `icon-512.png` (cadangan untuk PWA). Semua file ikon harus ada di folder yang sama dengan `index.html`.
 
