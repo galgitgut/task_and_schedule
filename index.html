@@ -397,35 +397,59 @@ function prevSkip(d){let k=addDays(d,-1);for(let i=0;i<60&&skipDay(k);i++)k=addD
 function streakOf(ds){const t=todayStr();let d=ds.has(t)?t:prevSkip(t),n=0;while(ds.has(d)){n++;d=prevSkip(d);}return n;}
 function bestStreak(ds){let b=0,c=0,prev=null;[...ds].sort().forEach(d=>{c=prev&&addDays(prev,1)===d?c+1:1;b=Math.max(b,c);prev=d;});return b;}
 const apDates=(cid,tid)=>new Set(state.completions.filter(x=>x.childId===cid&&x.status==='approved'&&(!tid||x.taskId===tid)).map(x=>x.date));
-/* Streak tugas: hari berturut-turut tugas itu disetujui TANPA pengurangan nilai.
-   Putus bila: ada hari terlewat, atau pada hari itu kena hukuman/pengurangan poin. */
-const STREAK_MIN=5; // mulai hari ke-5 berturut-turut: +1 poin bonus setiap hari
+/* ===== STREAK TUGAS =====
+   Satuan streak: HARIAN (tiap hari aktif tugas) atau MINGGUAN (tiap minggu Sen–Min; semua hari aktif minggu itu harus selesai).
+   Satu satuan dihitung bila disetujui TANPA pengurangan nilai. Putus bila terlewat (kecuali punya 🛡️ perisai) atau kena pengurangan.
+   Hari libur tugas & Hari Bebas Streak (khusus orang tua) dilewati. */
+const STREAK_MIN=5,STREAK_MIN_W=7;   // bonus mulai hari ke-5 (harian) / minggu ke-7 (mingguan)
+const BONUS_D=1,BONUS_W=5;           // bonus per hari / per minggu
+const SHIELD_EVERY=7,SHIELD_MAX=2;   // 🛡️ 1 perisai tiap kelipatan 7 streak, maksimal disimpan 2
 const hasCut=x=>(x.adj||[]).some(a=>a.delta<0);
-function cleanDates(cid,tid){
-  const xs=state.completions.filter(x=>x.childId===cid&&x.taskId===tid&&x.status==='approved');
-  const bad=new Set(xs.filter(hasCut).map(x=>x.date));
-  return new Set(xs.map(x=>x.date).filter(d=>!bad.has(d)));
+const apprOf=(cid,tid)=>state.completions.filter(x=>x.childId===cid&&x.taskId===tid&&x.status==='approved');
+function badDates(cid,tid){return new Set(apprOf(cid,tid).filter(hasCut).map(x=>x.date));}
+function cleanDates(cid,tid){const xs=apprOf(cid,tid),bad=badDates(cid,tid);return new Set(xs.map(x=>x.date).filter(d=>!bad.has(d)));}
+const isWeekly=t=>t?.streakMode?t.streakMode==='weekly':(t?.days?.length>0&&t.days.length<=2); // default: tugas ≤2 hari/minggu = mingguan
+const mondayOf=d=>{const [y,m,dd]=d.split('-').map(Number);return addDays(d,-((new Date(y,m-1,dd).getDay()+6)%7));};
+const unitOf=(t,d)=>isWeekly(t)?mondayOf(d):d;
+function unitDays(t,u){const r=[],n=isWeekly(t)?7:1;for(let i=0;i<n;i++){const d=addDays(u,i);if(taskOn(t,dkOf(d))&&!skipDay(d))r.push(d);}return r;}
+const sUnit=t=>isWeekly(t)?'minggu':'hari';
+const sMin=t=>isWeekly(t)?STREAK_MIN_W:STREAK_MIN;
+const sPts=t=>isWeekly(t)?BONUS_W:BONUS_D;
+// simulasi streak dari awal riwayat sampai sebelum satuan stopU (eksklusif)
+function simStreak(t,ds,bad,stopU){
+  let n=0,sh=0;const used=[];const all=[...ds,...bad].sort();
+  if(!t||!all.length)return {n,s:sh,used};
+  const step=isWeekly(t)?7:1;
+  for(let u=unitOf(t,all[0]),i=0;u<stopU&&i<4000;u=addDays(u,step),i++){
+    const days=unitDays(t,u);if(!days.length)continue;
+    if(days.some(d=>bad.has(d))){n=0;continue;}                       // kena pengurangan: putus (perisai tidak menolong)
+    if(days.every(d=>ds.has(d))){n++;if(n%SHIELD_EVERY===0)sh=Math.min(SHIELD_MAX,sh+1);continue;}
+    if(n>0&&sh>0){sh--;used.push(u);}else n=0;                         // terlewat: pakai perisai bila ada
+  }
+  return {n,s:sh,used};
 }
-// hari aktif sebelumnya untuk tugas t (melompati hari yang tugasnya libur)
-function prevOn(t,d){let k=addDays(d,-1);for(let i=0;i<60&&(!taskOn(t,dkOf(k))||skipDay(k));i++)k=addDays(k,-1);return k;}
-// streak tugas: hari yang tugasnya libur tidak memutus streak
-function taskStreak(cid,tid){
-  const t=state.tasks.find(k=>k.id===tid),ds=cleanDates(cid,tid),today=todayStr();
-  let d=ds.has(today)?today:taskOn(t,dkOf(today))&&!skipDay(today)?prevOn(t,today):prevOn(t,addDays(today,1)),n=0;
-  while(ds.has(d)){n++;d=prevOn(t,d);}
-  return n;
+function streakState(cid,tid){
+  const t=state.tasks.find(k=>k.id===tid);if(!t)return {n:0,s:0,used:[],weekly:false,curDone:false};
+  const ds=cleanDates(cid,tid),bad=badDates(cid,tid),cu=unitOf(t,todayStr()),r=simStreak(t,ds,bad,cu),days=unitDays(t,cu);
+  const curBad=days.some(d=>bad.has(d)),curDone=!curBad&&days.length>0&&days.every(d=>ds.has(d));
+  if(curBad)r.n=0;else if(curDone){r.n++;if(r.n%SHIELD_EVERY===0)r.s=Math.min(SHIELD_MAX,r.s+1);}
+  return {...r,weekly:isWeekly(t),curDone};
 }
-// jumlah hari bersih berturut-turut yang berakhir tepat sehari sebelum tanggal d
-function streakBefore(cid,tid,d){const t=state.tasks.find(k=>k.id===tid),ds=cleanDates(cid,tid);let k=prevOn(t,d),n=0;while(ds.has(k)){n++;k=prevOn(t,k);}return n;}
-// apakah pengajuan x berhak bonus streak +1 (dihitung saat verifikasi orang tua)
-function streakBonusFor(x){
-  const prev=streakBefore(x.childId,x.taskId,x.date),n=prev+1;
-  const same=state.completions.filter(k=>k.childId===x.childId&&k.taskId===x.taskId&&k.date===x.date&&k.status==='approved');
-  if(same.some(hasCut))return {prev,n,ok:false};                 // hari itu sudah kena pengurangan
-  if(same.some(k=>(k.adj||[]).some(a=>a.streak)))return {prev,n,ok:false,given:true}; // sudah diberi hari itu
-  return {prev,n,ok:n>=STREAK_MIN};
+const taskStreak=(cid,tid)=>streakState(cid,tid).n;
+function streakBefore(cid,tid,d){const t=state.tasks.find(k=>k.id===tid);return simStreak(t,cleanDates(cid,tid),badDates(cid,tid),unitOf(t,d)).n;}
+// apakah pengajuan x berhak bonus streak (dihitung saat verifikasi orang tua). extra: tanggal yang ikut disetujui dalam proses yang sama
+function streakBonusFor(x,extra){
+  const t=state.tasks.find(k=>k.id===x.taskId);if(!t)return {ok:false,prev:0,n:0};
+  const ds=cleanDates(x.childId,x.taskId),bad=badDates(x.childId,x.taskId);
+  extra?.forEach(k=>{const [c,tid,d]=k.split('|');if(c===x.childId&&tid===x.taskId)ds.add(d);});
+  const u=unitOf(t,x.date),prev=simStreak(t,ds,bad,u).n,n=prev+1,days=unitDays(t,u);
+  const b={prev,n,weekly:isWeekly(t),min:sMin(t),pts:sPts(t),unit:sUnit(t)};
+  if(!days.includes(x.date)||days.some(d=>bad.has(d)))return {...b,ok:false};
+  if(!days.every(d=>d===x.date||ds.has(d)))return {...b,ok:false,partial:true};   // minggu belum lengkap
+  if(apprOf(x.childId,x.taskId).some(k=>days.includes(k.date)&&(k.adj||[]).some(a=>a.streak)))return {...b,ok:false,given:true};
+  return {...b,ok:n>=b.min};
 }
-const streakAdj=n=>({label:`Streak ${n} hari berturut-turut`,delta:1,streak:n});
+const streakAdj=sb=>({label:`Streak ${sb.n} ${sb.unit} berturut-turut`,delta:sb.pts,streak:sb.n,...(sb.weekly?{weekly:true}:{})});
 function childStats(cid){
   const ds=apDates(cid),led=state.ledger.filter(x=>x.childId===cid);
   return {tasks:state.completions.filter(x=>x.childId===cid&&x.status==='approved').length,streak:streakOf(ds),best:bestStreak(ds),
@@ -671,8 +695,8 @@ function taskCard(c,t,d,withTime){
   const cls=left>0?(pd?'pending':''):(pd?'pending':'done');
   const right=left>0?`<button class="btn btn-primary btn-sm" data-action="complete-task" data-id="${t.id}">Selesai</button>`:pd?`<span class="badge b-pend">⏳ Menunggu</span>`:`<span class="badge b-ok">✓ Disetujui</span>`;
   const prog=max>1?`<div class="sub">Hari ini: ${xs.length}/${max} kali${ap?` • ✓ ${ap}`:''}${pd?` • ⏳ ${pd}`:''}</div>`:(left>0&&pd?`<div class="sub">⏳ Menunggu</div>`:'');
-  const sk=taskStreak(c.id,t.id);
-  return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=2?` <span class="streak">🔥 ${sk} hari${sk>=STREAK_MIN?' • +1/hari':''}</span>`:''}</div>${prog}</div>${right}</div>`;
+  const ss=streakState(c.id,t.id),sk=ss.n,su=ss.weekly?'minggu':'hari',smin=ss.weekly?STREAK_MIN_W:STREAK_MIN,spts=ss.weekly?BONUS_W:BONUS_D;
+  return `<div class="task-card ${cls}">${withTime?`<div class="tl-t">${t.time||''}</div>`:''}<div class="task-icon">${t.icon||'⭐'}</div><div class="task-body">${esc(t.name)}<div class="pts">+${t.points} poin${max>1?' tiap kali':''}${sk>=(ss.weekly?1:2)?` <span class="streak">🔥 ${sk} ${su}${sk>=smin?` • +${spts}/${su}`:''}${ss.s?` • 🛡️${ss.s}`:''}</span>`:''}</div>${prog}</div>${right}</div>`;
 }
 // status satu tugas hari ini untuk tampilan ringkas di jadwal
 function tState(c,t,d){
@@ -735,7 +759,7 @@ function childNews(c,since){
   state.completions.filter(x=>x.childId===c.id&&(x.status==='approved'||x.status==='rejected')&&T(x.reviewedAt)>since).forEach(x=>out.push({t:T(x.reviewedAt),html:x.status==='approved'
     ?`<div class="news"><div class="ic">✅</div><div class="bd">${esc(x.taskName)}<div class="sub">tugas disetujui</div>${adjLines(x)}</div><div class="dl plus">+${x.points||0}</div></div>`
     :`<div class="news"><div class="ic">❌</div><div class="bd">${esc(x.taskName)}<div class="sub">tugas ditolak, boleh dicoba lagi</div></div><div class="dl">0</div></div>`,d:x.status==='approved'?(x.points||0):0,
-    streak:(()=>{const a=x.status==='approved'&&(x.adj||[]).find(k=>k.streak);if(!a)return null;const t=state.tasks.find(k=>k.id===x.taskId);return {name:x.taskName,icon:t?.icon||'⭐',n:a.streak,d:a.delta};})()}));
+    streak:(()=>{const a=x.status==='approved'&&(x.adj||[]).find(k=>k.streak);if(!a)return null;const t=state.tasks.find(k=>k.id===x.taskId);return {name:x.taskName,icon:t?.icon||'⭐',n:a.streak,d:a.delta,w:!!a.weekly};})()}));
   state.ledger.filter(x=>x.childId===c.id&&(x.type==='bonus'||x.type==='penalty')&&T(x.createdAt)>since).forEach(x=>out.push({t:T(x.createdAt),d:x.delta,html:`<div class="news"><div class="ic">${LICON[x.type]}</div><div class="bd">${x.type==='bonus'?'Bonus dari orang tua':'Poin dikurangi orang tua'}<span class="why ${x.delta>0?'plus':'min'}">Karena: ${esc(x.note||'-')}</span></div><div class="dl ${x.delta>0?'plus':'min'}">${x.delta>0?'+':'−'}${nf(Math.abs(x.delta))}</div></div>`}));
   state.redemptions.filter(x=>x.childId===c.id&&(x.status==='approved'||x.status==='rejected')&&T(x.reviewedAt)>since).forEach(x=>out.push({t:T(x.reviewedAt),d:x.status==='approved'?-(x.cost||0):0,html:`<div class="news"><div class="ic">🎁</div><div class="bd">${esc(x.rewardName)}<div class="sub">hadiah ${x.status==='approved'?'disetujui, selamat!':'belum disetujui'}</div></div><div class="dl ${x.status==='approved'?'min':''}">${x.status==='approved'?'−'+nf(x.cost):'0'}</div></div>`}));
   return out.sort((a,b)=>b.t-a.t);
@@ -762,7 +786,7 @@ function fireworks(ms=5000){
 function streakPop(c,evs){
   openModal(`<div style="text-align:center"><div class="big-fire">🔥</div><div class="wow">STREAK!</div>
     <p style="font-weight:800;margin-top:6px">Hebat, ${esc(c.name)}! Kamu konsisten banget! 🎉</p></div>
-    <div style="margin-top:10px">${evs.map(e=>`<div class="sk-row"><div class="ic">${e.icon}</div><div class="bd">${esc(e.name)}<div class="sub">${e.n} hari berturut-turut!</div></div><div class="n">+${e.d} ⭐</div></div>`).join('')}</div>
+    <div style="margin-top:10px">${evs.map(e=>`<div class="sk-row"><div class="ic">${e.icon}</div><div class="bd">${esc(e.name)}<div class="sub">${e.n} ${e.w?'minggu':'hari'} berturut-turut!</div></div><div class="n">+${e.d} ⭐</div></div>`).join('')}</div>
     <div class="cheer">Bonus streak sudah disetujui Ayah/Ibu. Pertahankan terus ya! 💪</div>
     <button class="btn btn-primary" data-action="news-ok">Hore! 🎆</button>`);
   fireworks();
@@ -770,16 +794,22 @@ function streakPop(c,evs){
 const CHEERS=['Sedikit demi sedikit, lama-lama jadi bukit! ⛰️','Kamu hebat! Terus semangat ya! 💪','Konsisten itu kekuatan super! 🦸','Satu hari lagi, satu langkah lebih hebat! 🚀','Ayah & Ibu bangga sama kamu! ❤️','Jangan putus ya, kamu pasti bisa! 🌟'];
 function streakInfo(c){
   const ts=myTasks(c.id,null),today=todayStr();
-  return ts.map(t=>{const n=taskStreak(c.id,t.id),ds=cleanDates(c.id,t.id);return {t,n,off:!taskOn(t,todayKey()),done:ds.has(today),pend:getComps(c.id,t.id,today).some(x=>x.status==='pending')};}).filter(o=>o.n>0).sort((a,b)=>b.n-a.n);
+  return ts.map(t=>{const ss=streakState(c.id,t.id),ds=cleanDates(c.id,t.id);return {t,...ss,min:sMin(t),pts:sPts(t),unit:sUnit(t),off:!taskOn(t,todayKey())||skipDay(today),done:ds.has(today),pend:getComps(c.id,t.id,today).some(x=>x.status==='pending')};}).filter(o=>o.n>0||o.s>0).sort((a,b)=>b.n-a.n);
 }
 function streakBody(c){
-  const all=streakInfo(c),hot=all.filter(o=>o.n>=STREAK_MIN),near=all.filter(o=>o.n<STREAK_MIN);
-  const st=o=>o.off?`😴 libur hari ini (${daysLabel(o.t.days)}), streak aman`:o.done?'✅ hari ini sudah aman':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini';
-  return `${hot.length?`<div class="sec">🔥 Streak +1/hari (${hot.length})</div>${hot.map(o=>`<div class="sk-row"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div></div><div class="n">🔥 ${o.n} hari</div></div>`).join('')}`
-    :`<p class="sub" style="text-align:center;margin-top:6px">Belum ada tugas dengan streak ${STREAK_MIN} hari. Kerjakan tugas yang sama ${STREAK_MIN} hari berturut-turut untuk dapat bonus <b>+1 poin setiap hari</b>!</p>`}
-  ${near.length?`<div class="sec">🌱 Menuju streak</div>${near.slice(0,6).map(o=>`<div class="sk-row near"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div><div class="sk-bar"><i style="width:${o.n/STREAK_MIN*100}%"></i></div></div><div class="n">${o.n}/${STREAK_MIN}<br>${STREAK_MIN-o.n} hari lagi</div></div>`).join('')}`:''}
+  const all=streakInfo(c),hot=all.filter(o=>o.n>=o.min),near=all.filter(o=>o.n<o.min);
+  const st=o=>o.weekly?(o.curDone?'✅ minggu ini sudah lengkap':o.off?`😴 libur hari ini (${daysLabel(o.t.days)})`:o.done?'✅ hari ini sudah, lengkapi minggu ini':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini')
+    :o.off?`😴 libur hari ini (${daysLabel(o.t.days)}), streak aman`:o.done?'✅ hari ini sudah aman':o.pend?'⏳ hari ini menunggu persetujuan':'❗ belum dikerjakan hari ini';
+  const sh=o=>o.s?` <span style="white-space:nowrap">🛡️×${o.s}</span>`:'';
+  // perisai yang baru saja terpakai (hari/minggu terakhir)
+  const saved=all.filter(o=>o.used.length&&o.used[o.used.length-1]>=(o.weekly?addDays(mondayOf(todayStr()),-7):addDays(todayStr(),-3)));
+  return `${saved.map(o=>`<div class="sk-row" style="background:var(--okbg)"><div class="ic">🛡️</div><div class="bd">Perisai menyelamatkan streak <b>${esc(o.t.name)}</b>!<div class="sub">Kemarin terlewat, tapi streakmu tetap aman. Jangan sampai terlewat lagi ya!</div></div></div>`).join('')}
+  ${hot.length?`<div class="sec">🔥 Streak berbonus (${hot.length})</div>${hot.map(o=>`<div class="sk-row"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)} • +${o.pts}/${o.unit}</div></div><div class="n">🔥 ${o.n} ${o.unit}${sh(o)}</div></div>`).join('')}`
+    :`<p class="sub" style="text-align:center;margin-top:6px">Belum ada streak berbonus. Kerjakan tugas yang sama <b>${STREAK_MIN} hari</b> berturut-turut untuk bonus <b>+${BONUS_D} poin/hari</b>, atau tugas mingguan <b>${STREAK_MIN_W} minggu</b> berturut-turut untuk bonus <b>+${BONUS_W} poin/minggu</b>!</p>`}
+  ${near.length?`<div class="sec">🌱 Menuju streak</div>${near.slice(0,6).map(o=>`<div class="sk-row near"><div class="ic">${o.t.icon||'⭐'}</div><div class="bd">${esc(o.t.name)}<div class="sub">${st(o)}</div><div class="sk-bar"><i style="width:${o.n/o.min*100}%"></i></div></div><div class="n">${o.n}/${o.min}${sh(o)}<br>${o.min-o.n} ${o.unit} lagi</div></div>`).join('')}`:''}
   <div class="cheer">${CHEERS[new Date().getDate()%CHEERS.length]}</div>
-  <div class="warnbox">⚠️ <b>Streak akan HILANG kalau:</b><br>1. Lupa mengerjakan tugasnya, walau cuma sehari (hari libur tugas & hari bebas streak tidak dihitung).<br>2. Tugasnya kena pengurangan nilai/hukuman dari Ayah atau Ibu.<br>Kerjakan setiap hari dengan baik dan rapi ya!</div>`;
+  <div class="card" style="margin:10px 0 0;padding:12px 14px;font-size:13px;line-height:1.5"><b>🛡️ Perisai Streak</b><br>Setiap streak mencapai kelipatan ${SHIELD_EVERY} (7, 14, 21, …) kamu dapat 1 perisai (maks. ${SHIELD_MAX}). Kalau suatu hari terlewat, perisai otomatis menyelamatkan streakmu.</div>
+  <div class="warnbox">⚠️ <b>Streak akan HILANG kalau:</b><br>1. Lupa mengerjakan tugasnya dan tidak punya 🛡️ perisai.<br>2. Tugasnya kena pengurangan nilai/hukuman dari Ayah atau Ibu (perisai tidak bisa menolong).<br>Kerjakan dengan baik dan rapi ya!</div>`;
 }
 function dailyStreakPop(c){
   openModal(`<div style="text-align:center"><div style="font-size:48px" class="pulse">🔥</div><h3>Streak Tugasmu Hari Ini</h3><p class="sub">${DN[todayKey()]}, ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long'})}</p></div>
@@ -829,7 +859,7 @@ function historyEntries(c){
     out.push({date:x.date,t:T(x.createdAt),tags,pts:st==='approved'?(x.points||0):0,st,
       html:`<div class="hrow ${st==='rejected'?'no':''}"><div class="ic">${t?.icon||'⭐'}</div><div class="bd">${esc(x.taskName)}
         <div class="sub">${hm(x.createdAt)?`dikirim ${hm(x.createdAt)}`:''}${x.reviewedAt&&st!=='pending'?` • diperiksa ${hm(x.reviewedAt)}${x.reviewedAt?.toDate&&fmt(x.reviewedAt.toDate())!==x.date?` (${x.reviewedAt.toDate().toLocaleDateString('id-ID',{day:'numeric',month:'short'})})`:''}`:''}</div>
-        <span class="badge ${st==='approved'?'b-ok':st==='rejected'?'b-no':'b-pend'}">${st==='approved'?'✓ Disetujui':st==='rejected'?'✕ Ditolak':'⏳ Menunggu'}</span>${sk?` <span class="badge b-pend">🔥 Streak ${sk.streak} hari</span>`:''}
+        <span class="badge ${st==='approved'?'b-ok':st==='rejected'?'b-no':'b-pend'}">${st==='approved'?'✓ Disetujui':st==='rejected'?'✕ Ditolak':'⏳ Menunggu'}</span>${sk?` <span class="badge b-pend">🔥 Streak ${sk.streak} ${sk.weekly?'minggu':'hari'}</span>`:''}
         ${st==='approved'?adjLines(x):''}</div>
         <div class="dl ${st==='approved'?((x.points||0)>0?'plus':'zero'):'zero'}">${st==='approved'?'+'+(x.points||0):st==='rejected'?'0':'…'}</div></div>`});
   });
@@ -930,7 +960,7 @@ function copyModal(){
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Salin</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
 }
 function pTasks(B){
-  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''}${t.days?.length&&t.days.length<7?` • 📅 ${daysLabel(t.days)}`:''}${toMin(t.time)!=null?` • 🕒 ${t.time}`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
+  B.innerHTML=`<button class="btn btn-primary" data-action="add-task">➕ Tambah Tugas</button><div class="sec">Daftar Tugas (${state.tasks.length})</div>`+(state.tasks.length?state.tasks.map(t=>`<div class="row"><div class="row-icon">${t.icon||'⭐'}</div><div class="row-body">${esc(t.name)}<div class="sub">+${t.points} poin${maxOf(t)>1?` • maks ${maxOf(t)}x/hari`:''}${t.days?.length&&t.days.length<7?` • 📅 ${daysLabel(t.days)}`:''}${isWeekly(t)?' • 🔥 streak mingguan':''}${toMin(t.time)!=null?` • 🕒 ${t.time}`:''} • ${t.forChild&&t.forChild!=='all'?esc(child(t.forChild)?.name||'?'):'Semua anak'}${t.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-task" data-id="${t.id}">✎</button><button class="ib no" data-action="del-task" data-id="${t.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada tugas.</p></div>`);
 }
 function pRewards(B){
   B.innerHTML=rpBox(null)+missionCard(true)+`<button class="btn btn-primary" data-action="add-reward">➕ Tambah Hadiah</button><div class="sec">Daftar Hadiah (${state.rewards.length})</div>`+(state.rewards.length?state.rewards.map(r=>`<div class="row"><div class="row-icon">${r.icon||'🎁'}</div><div class="row-body">${esc(r.name)}<div class="sub">${nf(r.cost)} poin (${rp(r.cost)})${r.active===false?' • nonaktif':''}</div></div><div class="acts"><button class="ib ok" data-action="edit-reward" data-id="${r.id}">✎</button><button class="ib no" data-action="del-reward" data-id="${r.id}">🗑</button></div></div>`).join(''):`<div class="empty"><p>Belum ada hadiah.</p></div>`);
@@ -980,9 +1010,15 @@ async function adjustPoints(cid,kind,amount,note){
 function pMore(B){
   const t=getTheme();
   B.innerHTML=(installEvt?`<button class="btn btn-primary" data-action="install-app">📲 Install aplikasi di HP ini</button>`:'')+`<div class="card"><b>🎨 Tampilan</b><div class="seg" style="margin-top:8px">${[['light','☀️ Terang'],['dark','🌙 Gelap'],['auto','📱 Ikuti HP']].map(([k,n])=>`<button class="tab ${t===k?'active':''}" data-action="set-theme" data-v="${k}">${n}</button>`).join('')}</div><p class="sub" style="margin-top:6px">Berlaku di HP ini saja.</p></div>
-  <div class="card"><b>🛡️ Hari Bebas Streak</b><p class="sub" style="margin:4px 0 8px">Tanggal di sini dilewati saat menghitung streak, jadi streak anak tidak putus. Pakai untuk hari ketika aplikasi tidak bisa dibuka, anak sakit, atau bepergian.</p>
-    ${(state.family?.streakSkip||[]).slice().sort().reverse().map(d=>{const [y,m,dd]=d.split('-').map(Number);return `<div class="mini" style="align-items:center"><span>🛡️ ${new Date(y,m-1,dd).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span><button class="ib no" data-action="skip-del" data-v="${d}" title="Hapus">✕</button></div>`;}).join('')||'<p class="sub">Belum ada tanggal.</p>'}
-    <div style="display:flex;gap:8px;margin-top:8px"><input type="date" id="skip-date" max="${todayStr()}" value="${addDays(todayStr(),-1)}" style="margin:0;flex:1"><button class="btn btn-primary btn-sm" style="width:auto" data-action="skip-add">➕ Tambah</button></div></div>
+  <div class="card"><b>🛡️ Hari Bebas Streak</b><p class="sub" style="margin:4px 0 8px">Khusus untuk hari ketika aplikasi bermasalah (error atau tidak bisa dibuka). Tanggal di sini dilewati saat menghitung streak, jadi streak anak tidak putus.</p>
+    ${(()=>{const all=(state.family?.streakSkip||[]).slice().sort().reverse(),why=state.family?.streakSkipWhy||{},mo=todayStr().slice(0,7);
+      const row=d=>{const [y,m,dd]=d.split('-').map(Number);return `<div class="mini" style="align-items:center"><span>🛡️ ${new Date(y,m-1,dd).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}<div class="sub">${esc(why[d]||'(tanpa alasan)')}</div></span><button class="ib no" data-action="skip-del" data-v="${d}" title="Hapus">✕</button></div>`;};
+      const cur=all.filter(d=>d.startsWith(mo)),old=all.filter(d=>!d.startsWith(mo));
+      return (cur.map(row).join('')||'<p class="sub">Belum ada tanggal bulan ini.</p>')
+        +(old.length?(state.skipOpen?`<div class="sub" style="font-weight:800;margin-top:8px">Hari bebas streak sebelumnya</div>${old.map(row).join('')}<button class="btn btn-ghost btn-sm" data-action="skip-open">▲ Sembunyikan</button>`:`<button class="btn btn-ghost btn-sm" style="margin-top:8px" data-action="skip-open">▼ +${old.length} hari bebas streak sebelumnya</button>`):'');})()}
+    <div style="display:flex;gap:8px;margin-top:10px"><input type="date" id="skip-date" max="${todayStr()}" value="${addDays(todayStr(),-1)}" style="margin:0;flex:1"></div>
+    <div style="display:flex;gap:8px;margin-top:6px"><input id="skip-why" maxlength="60" placeholder="Alasan, mis. aplikasi error / akun GitHub disuspend" style="margin:0;flex:1"><button class="btn btn-primary btn-sm" style="width:auto" data-action="skip-add">➕ Tambah</button></div>
+    <p class="sub" style="margin-top:6px">Hanya terlihat oleh orang tua. Anak tidak melihat daftar ini.</p></div>
   <div class="card t-pink"><b>${esc(state.family?.name||'Keluarga')}</b><div class="sub">ID: ${state.familyId}</div></div><button class="btn btn-secondary" data-action="change-family-name">✏️ Ganti Nama Keluarga</button><button class="btn btn-warn" data-action="change-pin">🔒 Ganti PIN Orang Tua</button><button class="btn btn-danger" data-action="reset-device">🚪 Keluar dari HP Ini</button>`;
 }
 
@@ -1010,6 +1046,8 @@ function taskModal(id){
   <div class="dchips" id="task-days">${MON.map(k=>`<button type="button" class="dchip ${taskOn(t,k)?'on':''}" data-action="day-tog" data-v="${k}">${DN[k].slice(0,3)}</button>`).join('')}</div>
   <div class="dpre"><button type="button" data-action="day-preset" data-v="all">Setiap hari</button><button type="button" data-action="day-preset" data-v="weekday">Senin–Jumat</button><button type="button" data-action="day-preset" data-v="weekend">Sabtu–Minggu</button></div>
   <p class="sub">Tugas hanya muncul (di Hari Ini, jadwal, dan pengingat) pada hari yang dipilih. Hari libur tugas tidak memutus streak.</p>
+  <label>Jenis streak</label><select name="streakMode"><option value="daily" ${!isWeekly(t)?'selected':''}>🔥 Harian: bonus +${BONUS_D}/hari mulai hari ke-${STREAK_MIN}</option><option value="weekly" ${isWeekly(t)?'selected':''}>📅 Mingguan: bonus +${BONUS_W}/minggu mulai minggu ke-${STREAK_MIN_W}</option></select>
+  <p class="sub">Mingguan cocok untuk tugas yang hanya muncul 1–2 hari per minggu. Satu minggu dihitung bila semua hari aktifnya selesai.</p>
   <label>Untuk</label><select name="forChild"><option value="all">Semua anak</option>${state.children.map(c=>`<option value="${c.id}" ${t?.forChild===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
   <label class="chk"><input type="checkbox" name="active" ${t?.active!==false?'checked':''}>Aktif</label>
   <button type="submit" class="btn btn-primary" style="margin-top:16px">Simpan</button><button type="button" class="btn btn-ghost" data-action="close-modal">Batal</button></form>`);
@@ -1123,7 +1161,9 @@ function reviewModal(id){
   openModal(`<h3>${t.icon||'⭐'} ${esc(x.taskName)}</h3><p class="sub">${c?.avatar||''} ${esc(c?.name||'?')} • ${x.date} • poin dasar <b>+${base}</b></p>
   <form id="form-review" autocomplete="off" data-id="${id}">
     ${rr('bonus','🎉 Bonus')}${rr('penalty','⚠️ Hukuman')}
-    ${(()=>{const sb=streakBonusFor(x);return sb.ok?`<div class="sec" style="margin-top:12px">🔥 Streak</div><label class="chk rchk skl"><input type="checkbox" name="streak" value="${sb.n}" checked>🔥 Streak ${sb.n} hari berturut-turut<b>+1</b></label>`:sb.prev?`<p class="sub" style="margin-top:10px">🔥 Streak saat ini ${sb.prev} hari${sb.n<STREAK_MIN?` • bonus +1/hari mulai hari ke-${STREAK_MIN}`:''}</p>`:'';})()}
+    ${(()=>{const sb=streakBonusFor(x);return sb.ok?`<div class="sec" style="margin-top:12px">🔥 Streak</div><label class="chk rchk skl"><input type="checkbox" name="streak" value="${sb.n}" checked>🔥 Streak ${sb.n} ${sb.unit} berturut-turut<b>+${sb.pts}</b></label>`
+      :sb.partial?`<p class="sub" style="margin-top:10px">🔥 Streak mingguan ${sb.prev} minggu • minggu ini belum lengkap, bonus dihitung saat semua hari minggu ini disetujui</p>`
+      :sb.prev?`<p class="sub" style="margin-top:10px">🔥 Streak saat ini ${sb.prev} ${sb.unit}${sb.n<sb.min?` • bonus +${sb.pts}/${sb.unit} mulai ${sb.unit} ke-${sb.min}`:''}</p>`:'';})()}
     <p class="sub" id="streak-warn" style="display:none;color:var(--nofg);font-weight:800">⚠️ Ada pengurangan nilai: streak tugas ini akan PUTUS dan bonus streak tidak diberikan.</p>
     ${base>1?`<div class="sec" style="margin-top:12px">✂️ Kurangi poin (opsional)</div>
     <div style="display:flex;gap:8px"><input name="cut" type="number" min="0" max="${base-1}" value="0" inputmode="numeric" style="width:80px;flex:none"><input name="cutWhy" maxlength="60" placeholder="Alasan, mis. belum selesai semua"></div>
@@ -1140,7 +1180,7 @@ function reviewAdj(f){
   const neg=adj.some(a=>a.delta<0),sk=f.querySelector('input[name=streak]');
   if(sk){if(neg){if(sk.checked)sk.dataset.auto='1';sk.checked=false;sk.disabled=true;}else{sk.disabled=false;if(sk.dataset.auto){sk.checked=true;delete sk.dataset.auto;}}}
   const sw=f.querySelector('#streak-warn');if(sw)sw.style.display=neg&&streakBefore(x.childId,x.taskId,x.date)>0?'':'none';
-  if(sk&&sk.checked&&!neg)adj.push(streakAdj(+sk.value));
+  if(sk&&sk.checked&&!neg){const sb=streakBonusFor(x);if(sb.ok)adj.push(streakAdj(sb));}
   return {adj,base,cut,why,sum:Math.max(0,base+adj.reduce((a,k)=>a+k.delta,0))};
 }
 async function approveTask(id){
@@ -1155,8 +1195,9 @@ async function approveAll(){
   if(!ps.length)return;
   if(!confirm(`Setujui semua ${ps.length} tugas yang menunggu?`))return;
   let tot=0;
-  const given=new Set(); // cegah bonus streak dobel untuk tugas & tanggal yang sama dalam satu kali proses
-  for(let i=0;i<ps.length;i+=100){const b=writeBatch(db);ps.slice(i,i+100).forEach(x=>{const k=x.childId+x.taskId+x.date,sb=streakBonusFor(x);const adj=sb.ok&&!given.has(k)?[streakAdj(sb.n)]:[];if(adj.length)given.add(k);tot+=addApproval(b,x,adj);});await b.commit();} // batas batch Firestore 500 operasi
+  const given=new Set(),extra=new Set(); // given: cegah bonus dobel per tugas & satuan; extra: tanggal yang ikut disetujui di proses ini
+  ps.sort((a,b)=>a.date.localeCompare(b.date));
+  for(let i=0;i<ps.length;i+=100){const b=writeBatch(db);ps.slice(i,i+100).forEach(x=>{const t=state.tasks.find(k=>k.id===x.taskId),k=x.childId+x.taskId+(t?unitOf(t,x.date):x.date),sb=streakBonusFor(x,extra);const adj=sb.ok&&!given.has(k)?[streakAdj(sb)]:[];if(adj.length)given.add(k);tot+=addApproval(b,x,adj);extra.add(`${x.childId}|${x.taskId}|${x.date}`);});await b.commit();} // batas batch Firestore 500 operasi
   toast(`✓ ${ps.length} tugas disetujui • +${nf(tot)} poin`,'success');
 }
 async function approveRedemption(id){
@@ -1203,10 +1244,11 @@ document.body.addEventListener('click',async e=>{
       case 'add-rule':$('#rules').insertAdjacentHTML('beforeend',ruleRow({type:el.dataset.v,when:'',pts:1}));$('#rules .rule:last-child .rw').focus();break;
       case 'del-rule':el.closest('.rule').remove();break;
       case 'news-ok':closeModal();break;
-      case 'skip-add':{const d=$('#skip-date')?.value;if(!d)throw new Error('Pilih tanggalnya dulu');if(d>todayStr())throw new Error('Tanggal tidak boleh di masa depan');
+      case 'skip-add':{const d=$('#skip-date')?.value,why=($('#skip-why')?.value||'').trim();if(!d)throw new Error('Pilih tanggalnya dulu');if(d>todayStr())throw new Error('Tanggal tidak boleh di masa depan');if(!why)throw new Error('Isi alasannya dulu, supaya nanti ingat kenapa');
         const cur=state.family?.streakSkip||[];if(cur.includes(d)){toast('Tanggal itu sudah ada');break;}
-        await updateDoc(doc(db,'families',state.familyId),{streakSkip:[...cur,d].sort()});toast('🛡️ Hari bebas streak ditambahkan','success');break;}
-      case 'skip-del':{const cur=state.family?.streakSkip||[];await updateDoc(doc(db,'families',state.familyId),{streakSkip:cur.filter(x=>x!==el.dataset.v)});toast('Tanggal dihapus');break;}
+        await updateDoc(doc(db,'families',state.familyId),{streakSkip:[...cur,d].sort(),streakSkipWhy:{...(state.family?.streakSkipWhy||{}),[d]:why}});toast('🛡️ Hari bebas streak ditambahkan','success');break;}
+      case 'skip-del':{const v=el.dataset.v,cur=state.family?.streakSkip||[],w={...(state.family?.streakSkipWhy||{})};delete w[v];await updateDoc(doc(db,'families',state.familyId),{streakSkip:cur.filter(x=>x!==v),streakSkipWhy:w});toast('Tanggal dihapus');break;}
+      case 'skip-open':state.skipOpen=!state.skipOpen;renderParent();break;
       case 'points-view':state.pointsView=el.dataset.v;state.histDays=14;renderChild();break;
       case 'hist-filter':state.histFilter=el.dataset.v;state.histDays=14;renderChild();break;
       case 'hist-more':state.histDays=(state.histDays||14)+14;renderChild();break;
@@ -1278,7 +1320,7 @@ document.body.addEventListener('submit',async e=>{
     else if(fid==='form-task'){
       const pts=parseInt(v.points,10)||0;
       const days=[...$$('#task-days .dchip.on')].map(b=>b.dataset.v);if(!days.length)throw new Error('Pilih minimal satu hari aktif');
-      const d={days:days.length===7?[]:days,name:v.name.trim(),icon:v.icon,points:pts,rules:pts>=2?readRules():[],maxPerDay:maxOf({maxPerDay:v.maxPerDay}),time:toMin(v.time)!=null?v.time:'',forChild:v.forChild||'all',active:!!v.active};
+      const d={streakMode:v.streakMode==='weekly'?'weekly':'daily',days:days.length===7?[]:days,name:v.name.trim(),icon:v.icon,points:pts,rules:pts>=2?readRules():[],maxPerDay:maxOf({maxPerDay:v.maxPerDay}),time:toMin(v.time)!=null?v.time:'',forChild:v.forChild||'all',active:!!v.active};
       if(eid)await updateDoc(fdoc('tasks',eid),d);else await setDoc(doc(fcol('tasks')),{...d,sortOrder:state.tasks.length});
       closeModal();toast('Tugas disimpan','success');
     }
